@@ -213,6 +213,9 @@ class PriceChallenge(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     cusip: Mapped[str] = mapped_column(String(9), index=True)
+    client: Mapped[str] = mapped_column(
+        String(40), default="unspecified", server_default="unspecified", index=True
+    )  # which SIX bank client raised the challenge
     observed_price: Mapped[float] = mapped_column(Numeric(12, 4))   # price the client saw
     challenged_price: Mapped[float] = mapped_column(Numeric(12, 4)) # what they argue
     note: Mapped[str] = mapped_column(String(240), default="")

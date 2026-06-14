@@ -65,6 +65,32 @@
   .scroll{overflow-x:auto}
   @media(max-width:780px){.tiles{grid-template-columns:repeat(3,1fr)}.pcard{grid-template-columns:repeat(2,1fr)}}
   @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+  .nav{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+  .nav a{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:11px 0;margin-right:22px;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .nav a:hover{color:var(--ink)}
+  .fb-grid{display:flex;gap:30px;flex-wrap:wrap;margin-bottom:16px}
+  .fb-mini{flex:1;min-width:240px}
+  .fb-mini .eb{display:block;margin-bottom:7px}
+  .fb-mini table{width:100%;border-collapse:collapse}
+  .fb-mini td{padding:5px 0;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+  .fb-mini td.r{text-align:right}
+  .fb-note{font-size:12.5px;color:var(--muted);line-height:1.55;margin:8px 0 0;max-width:880px}
+  .fb-note b{color:var(--ink)}
+  .cn-legend{display:flex;gap:18px;align-items:center;font-family:var(--mono);font-size:11px;color:var(--muted);margin:2px 0 12px;flex-wrap:wrap}
+  .cn-legend .k{display:inline-flex;align-items:center;gap:6px}
+  .cn-row{display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid var(--rule)}
+  .cn-lab{width:210px;flex:none;overflow:hidden}
+  .cn-lab .c{font-family:var(--mono);font-size:12px}
+  .cn-lab .n{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cn-strip{position:relative;height:26px;flex:1;min-width:220px}
+  .cn-mid{position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--ink)}
+  .cn-band{position:absolute;top:7px;height:12px;background:rgba(17,17,20,0.06)}
+  .cn-dot{position:absolute;top:9px;width:8px;height:8px;border-radius:50%;background:var(--muted);transform:translateX(-50%)}
+  .cn-ai{position:absolute;top:6px;width:12px;height:12px;background:var(--accent);transform:translate(-50%,0) rotate(45deg)}
+  .cn-meta{width:150px;flex:none;text-align:right;font-family:var(--mono);font-size:12px}
+  .cn-off{color:var(--accent);border:1px solid var(--accent);font-size:9px;letter-spacing:0.05em;padding:2px 5px;margin-left:6px}
+  .cn-row.hot{background:#fdeaec}
+  .cn-axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);margin:5px 0 0 222px}
 </style>
 </head>
 <body>
@@ -74,7 +100,14 @@
     <div class="meta">Data &amp; analytics service<br><b id="clock">—</b></div>
   </header>
 
-  <p class="rel">SIX operates its own exchange and distributes <b>Tradeweb</b> data products — notably <b>Municipal Ai-Price</b> (since 2022). This console turns those feeds into analytics SIX can monetise: tax-equivalent yield, relative value, portfolio risk, and inter-dealer liquidity intelligence. <b>Dealerweb</b> panels are marked prospective (not a current SIX product).</p>
+  <nav class="nav">
+    <a href="/" class="on">Overview</a>
+    <a href="/ui/flywheel">Flywheel</a>
+    <a href="/ui/feedback">Model quality</a>
+    <a href="/ui/identity">Identity</a>
+  </nav>
+
+  <p class="rel">SIX operates its own exchange and distributes <b>Tradeweb</b> data products — notably <b>Municipal Ai-Price</b> (since 2022). This console turns those feeds into analytics SIX can monetise: tax-equivalent yield, relative value, portfolio risk, multi-source consensus, and liquidity intelligence. Inter-dealer (<b>Dealerweb</b>) inputs to the liquidity model are synthetic and prospective.</p>
 
   <!-- Ai-Price + muni analytics -->
   <section id="sec-aiprice">
@@ -125,18 +158,14 @@
     <div class="err" id="pf-err" hidden></div>
   </section>
 
-  <!-- Dealerweb -->
-  <section id="sec-dw">
-    <div class="sh"><span class="eb">Inter-dealer</span><h2>Dealerweb rates &amp; MBS<span class="prospective">Prospective</span></h2><span class="src">top-of-book · <span class="tw">Dealerweb</span></span></div>
-    <div class="controls"><button class="btn" id="btn-dw">Refresh top-of-book</button></div>
-    <div class="tiles" id="dw-tiles" style="grid-template-columns:repeat(4,1fr)"></div>
-    <div class="scroll">
-    <table>
-      <thead><tr><th>Product</th><th>Instrument</th><th>Tenor</th><th class="num">Cpn</th><th class="num">Bid</th><th class="num">Ask</th><th class="num">Spd bp</th><th class="num">Bid sz</th><th class="num">Ask sz</th><th class="num">Liq</th></tr></thead>
-      <tbody id="dw-body"><tr><td colspan="10" class="empty">Refresh to load inter-dealer top-of-book.</td></tr></tbody>
-    </table>
-    </div>
-    <div class="err" id="dw-err" hidden></div>
+  <!-- Consensus deviation -->
+  <section id="sec-consensus">
+    <div class="sh"><span class="eb">Multi-source</span><h2>Consensus deviation</h2><span class="src">Ai-Price vs <span class="tw">bank-client marks</span></span></div>
+    <div class="tiles" id="cn-tiles" style="grid-template-columns:repeat(4,1fr)"></div>
+    <div class="cn-legend" id="cn-legend"></div>
+    <div id="cn-plot"><div class="empty" style="font-family:var(--mono);font-size:12px;color:var(--muted)">Ingest Ai-Price to compute consensus.</div></div>
+    <p class="fb-note" id="cn-note"></p>
+    <div class="err" id="cn-err" hidden></div>
   </section>
 
   <!-- SIX enriched bundle -->
@@ -163,12 +192,15 @@
   <section id="sec-feedback">
     <div class="sh"><span class="eb">SIX → Tradeweb</span><h2>Model-quality feedback</h2><span class="src">computed by <span class="tw">SIX</span></span></div>
     <div id="fb-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+    <div id="fb-detail" class="fb-grid"></div>
+    <h3 class="sub" style="font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:4px 0 8px;font-weight:500">Model-review candidates</h3>
     <div class="scroll">
     <table>
       <thead><tr><th>CUSIP</th><th>Description</th><th class="num">Confidence</th><th class="num">Disloc Z</th><th>Why flagged for review</th></tr></thead>
       <tbody id="fb-body"><tr><td colspan="5" class="empty">Ingest Ai-Price to compute review candidates.</td></tr></tbody>
     </table>
     </div>
+    <p id="fb-note" class="fb-note"></p>
     <div class="err" id="fb-err" hidden></div>
   </section>
 
@@ -277,27 +309,28 @@ async function loadPfValuation(){
   }catch(e){showErr('#pf-err',e.message)}
 }
 
-async function refreshDw(){
-  const b=$('#btn-dw');b.disabled=true;clrErr('#dw-err');
-  try{await api('POST','/dealerweb/refresh');await loadDw();await loadGps()}catch(e){showErr('#dw-err',e.message)}finally{b.disabled=false}
-}
-async function loadDw(){
-  let rows;try{rows=await api('GET','/dealerweb/top-of-book')}catch(e){return}
-  if(!rows.length){$('#dw-body').innerHTML='<tr><td colspan="10" class="empty">No data. Refresh top-of-book.</td></tr>';return}
-  let a=null;try{a=await api('GET','/dealerweb/analytics/liquidity')}catch(_){}
-  if(a){
-    const tiles=[];
-    if(a.UST){tiles.push(['UST avg spread',f(a.UST.avg_spread_bp,1)+'<small>bp</small>']);tiles.push(['UST tightest',a.UST.tightest]);}
-    if(a.TBA_MBS){tiles.push(['MBS avg spread',f(a.TBA_MBS.avg_spread_bp,1)+'<small>bp</small>']);tiles.push(['MBS depth','$'+Math.round(a.TBA_MBS.total_top_of_book_mm)+'<small>mm</small>']);}
-    $('#dw-tiles').innerHTML=tiles.map(t=>`<div class="tile"><div class="k">${t[0]}</div><div class="v" style="font-size:16px">${t[1]}</div></div>`).join('');
+async function loadConsensus(){
+  let d;try{d=await api('GET','/consensus')}catch(e){
+    $('#cn-plot').innerHTML='<div class="empty" style="font-family:var(--mono);font-size:12px;color:var(--muted)">Ingest Ai-Price to compute consensus.</div>';
+    $('#cn-tiles').innerHTML='';$('#cn-legend').innerHTML='';$('#cn-note').innerHTML='';return;
   }
-  $('#dw-body').innerHTML=rows.map(r=>`<tr>
-    <td><span class="tag">${r.product}</span></td><td class="sym">${esc(r.instrument)}</td><td>${r.tenor}</td>
-    <td class="num">${r.coupon!=null?f(r.coupon,1):'—'}</td>
-    <td class="num">${f(r.bid,3)}</td><td class="num">${f(r.ask,3)}</td>
-    <td class="num">${f(r.spread_bp,1)}</td>
-    <td class="num">${f(r.bid_size_mm,0)}</td><td class="num">${f(r.ask_size_mm,0)}</td>
-    <td class="num">${f(r.liquidity_score,0)}</td></tr>`).join('');
+  $('#cn-tiles').innerHTML=[
+    ['Screened',d.screened],['Off-market',d.off_market],
+    ['Contributors','5<small>banks</small>'],['Flag','|z|≥'+d.z_flag]
+  ].map(t=>`<div class="tile"><div class="k">${t[0]}</div><div class="v" style="font-size:16px">${t[1]}</div></div>`).join('');
+  $('#cn-legend').innerHTML='<span class="k"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted)"></span> bank mark (5)</span><span class="k"><span style="display:inline-block;width:14px;height:1px;background:var(--ink)"></span> consensus</span><span class="k"><span style="display:inline-block;width:9px;height:9px;background:var(--accent);transform:rotate(45deg)"></span> Ai-Price</span>';
+  const SCALE=150,HALF=150,px=dp=>Math.max(-HALF,Math.min(HALF,dp*SCALE));
+  $('#cn-plot').innerHTML=d.records.map(r=>{
+    const dots=(r.marks||[]).map(m=>`<span class="cn-dot" style="left:calc(50% + ${px(m-r.consensus).toFixed(1)}px)"></span>`).join('');
+    const bw=Math.min(r.dispersion*SCALE,HALF);
+    const band=`<span class="cn-band" style="left:calc(50% - ${bw.toFixed(1)}px);width:${(2*bw).toFixed(1)}px"></span>`;
+    const ai=px(r.ai_price-r.consensus);
+    return `<div class="cn-row${r.off_market?' hot':''}">
+      <div class="cn-lab"><div class="c">${r.cusip}</div><div class="n">${esc(r.description)}</div></div>
+      <div class="cn-strip">${band}<span class="cn-mid"></span>${dots}<span class="cn-ai" style="left:calc(50% + ${ai.toFixed(1)}px)"></span></div>
+      <div class="cn-meta">z=${r.z>=0?'+':''}${f(r.z)}${r.off_market?'<span class="cn-off">OFF-MARKET</span>':''}</div></div>`;
+  }).join('')+'<div class="cn-axis"><span>&#8592; eval below consensus (cheaper)</span><span>eval above consensus (richer) &#8594;</span></div>';
+  $('#cn-note').innerHTML='Per bond: where SIX&#39;s five bank clients carry it (dots), the consensus (line), and where Ai-Price lands (&#9670;). |z|&#8805;'+d.z_flag+' vs bank dispersion flags <b>off-market</b> &#8212; an outlier vs where the book carries it. Contributor marks are synthetic; production needs multi-source ingest. Full table on the <b>Model quality</b> tab.';
 }
 
 function sparkline(series,rising){
@@ -314,7 +347,7 @@ async function refreshGps(){
   try{
     await api('POST','/ai-price/refresh');
     await api('POST','/dealerweb/refresh');
-    await loadAi();await loadPfValuation();await loadDw();
+    await loadAi();await loadPfValuation();await loadConsensus();
     await loadGps();
     $('#gps-note').textContent='';
   }catch(e){showErr('#gps-err',e.message)}finally{b.disabled=false}
@@ -354,7 +387,6 @@ $('#btn-ai-intra').addEventListener('click',()=>refreshAi(true));
 $('#state-filter').addEventListener('change',loadAi);
 $('#tax-rate').addEventListener('change',()=>{loadAi();loadPfValuation();loadBundle();loadFeedback()});
 $('#pf-select').addEventListener('change',loadPfValuation);
-$('#btn-dw').addEventListener('click',refreshDw);
 async function refreshBundle(){
   const b=$('#btn-bundle');b.disabled=true;clrErr('#bundle-err');
   try{await api('POST','/ai-price/refresh');await loadAi();await loadPfValuation();await loadGps();await loadBundle();await loadFeedback();}
@@ -401,18 +433,44 @@ $('#btn-fw').addEventListener('click',turnFlywheel);
 async function loadFeedback(){
   let d;try{d=await api('GET','/feedback/tradeweb?marginal_rate='+rate())}catch(e){
     $('#fb-body').innerHTML='<tr><td colspan="5" class="empty">Ingest Ai-Price to compute review candidates.</td></tr>';
-    $('#fb-chips').innerHTML='';return;
+    $('#fb-chips').innerHTML='';$('#fb-detail').innerHTML='';$('#fb-note').innerHTML='';return;
   }
   var s=d.signals,mrc=s.model_review_candidates;
+  var fr=s.evaluation_freshness,cn=s.consensus_deviation,vb=s.validation_bias,dm=s.demand_momentum;
   var chip=(label,live,prosp)=>`<span class="tag" style="${live?'background:var(--ink);color:var(--paper);border-color:var(--ink)':prosp?'color:var(--accent);border-color:var(--accent)':''}">${label}</span>`;
   $('#fb-chips').innerHTML=[
-    chip('Freshness · '+s.evaluation_freshness.stale_count+' stale',true,false),
+    chip('★ Freshness · '+fr.stale_count+' stale',true,false),
+    chip('★ Consensus · '+cn.off_market+' off-market',true,false),
     chip('Model review · '+mrc.flagged+' flagged',true,false),
-    chip('Demand momentum · '+s.demand_momentum.total_events+' events',true,false),
-    chip('Validation bias · '+s.validation_bias.challenges+' challenges',true,false),
+    chip('Demand momentum · '+dm.total_events+' events',true,false),
+    chip('Validation bias · '+vb.challenges+' challenges',true,false),
     chip('Data quality · '+s.data_quality_feedback.status,false,false),
     chip('Consolidated · '+s.consolidated_metrics.status,false,true),
   ].join('');
+
+  var mini=(title,rows)=>`<div class="fb-mini"><span class="eb">${title}</span><table>`+
+    rows.map(r=>`<tr><td>${r[0]}</td><td class="r" style="color:${r[2]||'var(--ink)'}">${r[1]}</td></tr>`).join('')+`</table></div>`;
+  var ACC='var(--accent)',POS='var(--pos)',INK='var(--ink)',MUT='var(--muted)';
+  // freshness: worst tracker + sector betas
+  var frRows=[];var w0=fr.worst_trackers[0];
+  if(w0)frRows.push([`${w0.cusip} β=${f(w0.beta)}`,w0.stale?'STALE':'—',w0.stale?ACC:INK]);
+  fr.by_sector.forEach(x=>frRows.push([`Muni ${x.sector} mean β`,f(x.mean_beta),INK]));
+  // consensus: off-market names + ratio
+  var cnRows=[];cn.worst.filter(x=>x.off_market).slice(0,2).forEach(x=>cnRows.push([`${x.cusip} z=${x.z>=0?'+':''}${f(x.z)}`,'OFF-MARKET',ACC]));
+  cnRows.push(['off-market / screened',`${cn.off_market} / ${cn.screened}`,INK]);
+  // validation bias: signed by sector
+  var vbRows=vb.by_sector.map(x=>[`Muni ${x.sector}`,`${x.mean_bias_bp>=0?'+':''}${f(x.mean_bias_bp,1)} bp ${x.reads}`,x.mean_bias_bp>=0?ACC:POS]);
+  if(!vb.by_sector.length)vbRows.push(['no accepted challenges','—',MUT]);
+  vbRows.push(['challenges resolved',vb.challenges,INK]);
+  // demand momentum: direction by sector
+  var dmRows=dm.by_sector.map(x=>[`${x.sector} pulls`,x.direction,x.direction==='rising'?POS:x.direction==='falling'?ACC:MUT]);
+  dmRows.push(['total consumptions',dm.total_events,INK]);
+  $('#fb-detail').innerHTML=mini('★ Evaluation freshness · curve-tracking',frRows)
+    +mini('★ Consensus deviation · vs bank marks',cnRows)
+    +mini('Validation bias · signed',vbRows)
+    +mini('Demand momentum',dmRows);
+  $('#fb-note').innerHTML='The two headline signals are model-quality diagnostics SIX is uniquely placed to produce: <b>freshness</b> (did the eval track the SIX curve) and <b>consensus</b> (is it off where banks carry it). Five signals are live; two remain pending. Consensus uses synthetic contributor marks — production needs multi-source ingest. Full per-signal tables are on the <b>Model quality</b> tab.';
+
   if(!mrc.candidates.length){
     $('#fb-body').innerHTML=`<tr><td colspan="5" class="empty">None flagged · ${mrc.screened} screened, thresholds |z|≥${mrc.thresholds.abs_z}, conf<${mrc.thresholds.min_confidence}.</td></tr>`;return;
   }
@@ -427,7 +485,7 @@ async function loadFeedback(){
 $('#btn-gps').addEventListener('click',refreshGps);
 $('#btn-bundle').addEventListener('click',refreshBundle);
 
-loadAi();loadPortfolios();loadDw();loadGps();loadBundle();loadFeedback();loadFlywheel();
+loadAi();loadPortfolios();loadConsensus();loadGps();loadBundle();loadFeedback();loadFlywheel();
 </script>
 </body>
 </html>

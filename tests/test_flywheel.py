@@ -64,3 +64,22 @@ async def test_feedback_now_three_live(client):
     # the other two remain honestly pending
     assert sig["data_quality_feedback"]["available"] is False
     assert sig["consolidated_metrics"]["status"] == "prospective"
+
+
+async def test_challenge_records_client(client):
+    await client.post("/ai-price/refresh")
+    rows = (await client.get("/ai-price/latest")).json()
+    cusip = rows[0]["cusip"]
+    r = await client.post("/challenges", json={"cusip": cusip, "client": "Cantonal Bank",
+                                               "challenged_price": rows[0]["ai_price"] - 0.3})
+    assert r.status_code == 201
+    assert r.json()["client"] == "Cantonal Bank"
+    lst = (await client.get("/challenges")).json()
+    assert lst[0]["client"] == "Cantonal Bank"
+
+
+async def test_simulate_attributes_a_client(client):
+    await client.post("/ai-price/refresh")
+    r = (await client.post("/flywheel/simulate")).json()
+    assert r["client"]  # a SIX client is attributed
+    assert (await client.get("/challenges")).json()[0]["client"] == r["client"]

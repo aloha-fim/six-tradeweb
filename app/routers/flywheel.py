@@ -25,7 +25,14 @@ router = APIRouter(tags=["Flywheel"])
 class ChallengeIn(BaseModel):
     cusip: str = Field(min_length=9, max_length=9)
     challenged_price: float = Field(gt=0)
+    client: str = Field(default="unspecified", max_length=40)
     note: str = ""
+
+
+# Synthetic roster of SIX's bank clients (the same banks whose marks form the
+# consensus). Used to attribute a challenge and to drive simulated turns.
+SIX_CLIENTS = ["Cantonal Bank", "Private Bank", "Asset Manager",
+               "Universal Bank", "Insurance GA"]
 
 
 class ResolveIn(BaseModel):
@@ -49,13 +56,14 @@ async def submit_challenge(
     ch = PriceChallenge(
         cusip=payload.cusip, observed_price=float(rec.ai_price),
         challenged_price=payload.challenged_price, note=payload.note[:240],
-        status="pending",
+        client=(payload.client or "unspecified")[:40], status="pending",
     )
     session.add(ch)
     session.add(UsageEvent(cusip=payload.cusip, kind="challenge"))
     await session.commit()
     await session.refresh(ch)
-    return {"id": ch.id, "cusip": ch.cusip, "observed_price": float(ch.observed_price),
+    return {"id": ch.id, "cusip": ch.cusip, "client": ch.client,
+            "observed_price": float(ch.observed_price),
             "challenged_price": float(ch.challenged_price), "status": ch.status}
 
 
@@ -65,7 +73,8 @@ async def list_challenges(session: AsyncSession = Depends(get_session)) -> list[
         select(PriceChallenge).order_by(PriceChallenge.created_at.desc())
     )).all())
     return [{
-        "id": c.id, "cusip": c.cusip, "observed_price": float(c.observed_price),
+        "id": c.id, "cusip": c.cusip, "client": c.client,
+        "observed_price": float(c.observed_price),
         "challenged_price": float(c.challenged_price), "status": c.status,
         "settled_price": (float(c.settled_price) if c.settled_price is not None else None),
         "note": c.note,
@@ -133,9 +142,11 @@ async def simulate_turn(
         raise HTTPException(status_code=404, detail="No Ai-Price data; refresh first")
     target = min(rows, key=lambda r: r.confidence)
     observed = float(target.ai_price)
+    prior_turns = await session.scalar(select(func.count(ModelAdjustment.id))) or 0
+    client = SIX_CLIENTS[prior_turns % len(SIX_CLIENTS)]
     # client argues the evaluated mid is rich by ~25 cents
     settled = round(observed - 0.25, 4)
-    ch = PriceChallenge(cusip=target.cusip, observed_price=observed,
+    ch = PriceChallenge(cusip=target.cusip, client=client, observed_price=observed,
                         challenged_price=settled, note="auto-simulated turn",
                         status="accepted", settled_price=settled,
                         resolved_at=dt.datetime.now(dt.timezone.utc))
@@ -150,7 +161,7 @@ async def simulate_turn(
     new = next((r for r in await _latest_rows(session) if r.cusip == target.cusip), None)
     turns = await session.scalar(select(func.count(ModelAdjustment.id))) or 0
     return {
-        "challenged_cusip": target.cusip, "observed_price": observed,
+        "challenged_cusip": target.cusip, "client": client, "observed_price": observed,
         "settled_price": settled, "price_after_retrain": (float(new.ai_price) if new else None),
         "new_model_version": result.model_version, "loop_turns": turns,
     }

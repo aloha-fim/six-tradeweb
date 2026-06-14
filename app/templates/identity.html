@@ -1,0 +1,74 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ service }} · Identity</title><style>
+:root{--paper:#fafaf7;--field:#fff;--ink:#111114;--muted:#76766e;--rule:#ddddd4;--accent:#e2001a;--pos:#0f7a4f;
+--mono:ui-monospace,'SF Mono','JetBrains Mono',monospace;--sans:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.4;letter-spacing:-0.005em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.mast{border-bottom:2px solid var(--ink);padding:28px 0 14px;display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mast h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-0.02em;text-transform:uppercase}
+.mast .x{color:var(--accent);padding:0 2px}
+.mast .meta{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right}
+.mast .meta b{color:var(--ink);font-weight:500}
+.nav{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+.nav a{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:11px 0;margin-right:22px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nav a:hover{color:var(--ink)}
+.nav a.on{color:var(--ink);border-bottom-color:var(--accent)}
+section{border-bottom:1px solid var(--rule);padding:22px 0}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.eb{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+.sh h2{font-size:16px;font-weight:700;margin:0;letter-spacing:-0.01em}
+.src{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em}
+.src .tw{color:var(--accent);font-weight:600}
+h3.sub{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;font-weight:500}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:8px}
+.card{background:#f3f2ec;padding:12px 14px}
+.card .k{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)}
+.card .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;margin-top:3px}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:14px}
+.tile{background:var(--paper);padding:11px 12px}
+.tile .k{font-family:var(--mono);font-size:9.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:21px;margin-top:3px}
+.tile .v small{font-size:10px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);text-align:left;padding:0 10px 7px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+tbody td{padding:8px 10px 8px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-family:var(--mono);font-size:12px}
+.scroll{overflow-x:auto}
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:6px 12px}
+.btn:hover{background:var(--accent);border-color:var(--accent)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+.btn.xs{padding:3px 7px;font-size:10px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.controls label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+select,input[type=number]{font-family:var(--mono);font-size:12px;padding:5px 8px;border:1px solid var(--rule);background:var(--field);color:var(--ink)}
+input[type=number]{width:90px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;padding:5px 10px;border:1px solid var(--rule)}
+.chip.live{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.star{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.pend{color:var(--muted)}
+.chip.prosp{color:var(--accent);border-color:var(--accent)}
+.sig{font-family:var(--mono);font-size:12px}
+.note{font-size:13px;color:var(--muted);line-height:1.55;border-left:3px solid var(--accent);padding:10px 14px;background:#f3f2ec;margin:0 0 16px;border-radius:0}
+.note b{color:var(--ink)}
+.foot{padding:20px 0 30px;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
+.neg{color:var(--accent)}.posn{color:var(--pos)}
+</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Identity<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="">Flywheel</a><a href="/ui/feedback" class="">Model quality</a><a href="/ui/identity" class="on">Identity</a></nav>
+<section>
+  <div class="sh"><span class="eb">Reference</span><h2>Instrument identity</h2><span class="src">resolution &#183; read-only</span></div>
+  <p class="note">Identity is created <b>upstream</b>: the reference universe supplies each bond's CUSIP, and the ISIN check digit and issuer LEI are derived in enrichment. The loop assumes it &#8212; every storage and feedback join keys on CUSIP. This is a read-only resolution view, not a golden-copy master-data manager (that pipeline is conceptual only).</p>
+  <div class="scroll"><table>
+    <thead><tr><th>CUSIP</th><th>ISIN (derived)</th><th>Issuer LEI</th><th>Issuer / description</th><th>Sector</th><th>Rating</th></tr></thead>
+    <tbody id="id-body"><tr><td colspan="6" class="empty">Ingest Ai-Price to populate identities.</td></tr></tbody>
+  </table></div>
+</section>
+<script>
+const api=(m,u)=>fetch(u,{method:m}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();});
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function load(){let d;try{d=await api('GET','/enriched/ai-price');}catch(e){return;}
+  document.getElementById('id-body').innerHTML=d.records.map(r=>`<tr><td class="num">${r.cusip}</td><td class="num">${r.isin}</td><td class="num" style="font-size:11px">${r.lei}</td><td>${esc(r.canonical_name)}</td><td>${r.sector}</td><td>${r.rating_sp}</td></tr>`).join('');}
+load();
+</script>
+<div class="foot">Synthetic data feed · for demonstration · not investment advice</div></div></body></html>

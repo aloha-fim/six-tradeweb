@@ -43,7 +43,25 @@ def create_app() -> FastAPI:
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     async def dashboard(request: Request) -> HTMLResponse:
         return _TEMPLATES.TemplateResponse(
-            request, "index.html", {"service": settings.app_name}
+            request, "index.html", {"service": settings.app_name, "active": "overview"}
+        )
+
+    @app.get("/ui/flywheel", response_class=HTMLResponse, include_in_schema=False)
+    async def ui_flywheel(request: Request) -> HTMLResponse:
+        return _TEMPLATES.TemplateResponse(
+            request, "flywheel.html", {"service": settings.app_name, "active": "flywheel"}
+        )
+
+    @app.get("/ui/feedback", response_class=HTMLResponse, include_in_schema=False)
+    async def ui_feedback(request: Request) -> HTMLResponse:
+        return _TEMPLATES.TemplateResponse(
+            request, "feedback.html", {"service": settings.app_name, "active": "feedback"}
+        )
+
+    @app.get("/ui/identity", response_class=HTMLResponse, include_in_schema=False)
+    async def ui_identity(request: Request) -> HTMLResponse:
+        return _TEMPLATES.TemplateResponse(
+            request, "identity.html", {"service": settings.app_name, "active": "identity"}
         )
 
     return app

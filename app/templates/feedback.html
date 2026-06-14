@@ -1,0 +1,111 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ service }} · Model quality</title><style>
+:root{--paper:#fafaf7;--field:#fff;--ink:#111114;--muted:#76766e;--rule:#ddddd4;--accent:#e2001a;--pos:#0f7a4f;
+--mono:ui-monospace,'SF Mono','JetBrains Mono',monospace;--sans:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.4;letter-spacing:-0.005em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.mast{border-bottom:2px solid var(--ink);padding:28px 0 14px;display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mast h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-0.02em;text-transform:uppercase}
+.mast .x{color:var(--accent);padding:0 2px}
+.mast .meta{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right}
+.mast .meta b{color:var(--ink);font-weight:500}
+.nav{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+.nav a{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:11px 0;margin-right:22px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nav a:hover{color:var(--ink)}
+.nav a.on{color:var(--ink);border-bottom-color:var(--accent)}
+section{border-bottom:1px solid var(--rule);padding:22px 0}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.eb{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+.sh h2{font-size:16px;font-weight:700;margin:0;letter-spacing:-0.01em}
+.src{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em}
+.src .tw{color:var(--accent);font-weight:600}
+h3.sub{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;font-weight:500}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:8px}
+.card{background:#f3f2ec;padding:12px 14px}
+.card .k{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)}
+.card .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;margin-top:3px}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:14px}
+.tile{background:var(--paper);padding:11px 12px}
+.tile .k{font-family:var(--mono);font-size:9.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:21px;margin-top:3px}
+.tile .v small{font-size:10px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);text-align:left;padding:0 10px 7px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+tbody td{padding:8px 10px 8px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-family:var(--mono);font-size:12px}
+.scroll{overflow-x:auto}
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:6px 12px}
+.btn:hover{background:var(--accent);border-color:var(--accent)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+.btn.xs{padding:3px 7px;font-size:10px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.controls label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+select,input[type=number]{font-family:var(--mono);font-size:12px;padding:5px 8px;border:1px solid var(--rule);background:var(--field);color:var(--ink)}
+input[type=number]{width:90px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;padding:5px 10px;border:1px solid var(--rule)}
+.chip.live{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.star{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.pend{color:var(--muted)}
+.chip.prosp{color:var(--accent);border-color:var(--accent)}
+.sig{font-family:var(--mono);font-size:12px}
+.note{font-size:13px;color:var(--muted);line-height:1.55;border-left:3px solid var(--accent);padding:10px 14px;background:#f3f2ec;margin:0 0 16px;border-radius:0}
+.note b{color:var(--ink)}
+.foot{padding:20px 0 30px;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
+.neg{color:var(--accent)}.posn{color:var(--pos)}
+</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Model quality<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="">Flywheel</a><a href="/ui/feedback" class="on">Model quality</a><a href="/ui/identity" class="">Identity</a></nav>
+<section>
+  <div class="sh"><span class="eb">SIX &#8594; Tradeweb</span><h2>Model-quality feedback</h2><span class="src">/feedback/tradeweb</span></div>
+  <div class="chips" id="fb-chips"></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Headline</span><h2>Evaluation freshness</h2><span class="src">curve-tracking responsiveness</span></div>
+  <div class="cards" id="fr-cards"></div>
+  <h3 class="sub">By sector</h3>
+  <table><thead><tr><th>Sector</th><th class="num">Mean &#946;</th><th class="num">Stale</th></tr></thead><tbody id="fr-sec"></tbody></table>
+  <h3 class="sub">Worst trackers</h3>
+  <div class="scroll"><table><thead><tr><th>CUSIP</th><th>Description</th><th class="num">Trades 30d</th><th class="num">Expected</th><th class="num">Actual</th><th class="num">&#946;</th><th class="num">Gap bp</th><th>Stale</th></tr></thead><tbody id="fr-worst"></tbody></table></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Headline</span><h2>Consensus deviation</h2><span class="src">Ai-Price vs bank-client marks</span></div>
+  <div class="cards" id="cn-cards"></div>
+  <div class="scroll"><table><thead><tr><th>CUSIP</th><th>Description</th><th class="num">Ai-Price</th><th class="num">Consensus</th><th class="num">Disp</th><th class="num">Dev px</th><th class="num">Dev bp</th><th class="num">z</th><th>Off-market</th></tr></thead><tbody id="cn-body"></tbody></table></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Live</span><h2>Model-review candidates</h2><span class="src">confidence + dislocation z</span></div>
+  <div class="scroll"><table><thead><tr><th>CUSIP</th><th>Description</th><th class="num">Confidence</th><th class="num">Disloc z</th><th>Why flagged</th></tr></thead><tbody id="mr-body"></tbody></table></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Live</span><h2>Demand momentum</h2><span class="src">rising vs prior consumption</span></div>
+  <table><thead><tr><th>Sector</th><th class="num">Early</th><th class="num">Late</th><th class="num">Momentum</th><th>Direction</th></tr></thead><tbody id="dm-body"></tbody></table>
+</section>
+<section>
+  <div class="sh"><span class="eb">Live</span><h2>Validation bias</h2><span class="src">signed correction by bucket</span></div>
+  <table><thead><tr><th>Sector</th><th class="num">Mean bias bp</th><th class="num">n</th><th>Reads</th></tr></thead><tbody id="vb-body"></tbody></table>
+</section>
+<section>
+  <div class="sh"><span class="eb">Pending</span><h2>Not yet computable</h2></div>
+  <div class="cards" id="pend-cards"></div>
+</section>
+<script>
+const api=(m,u)=>fetch(u,{method:m}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();});
+const $=s=>document.querySelector(s);const f=(n,d=2)=>Number(n).toFixed(d);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function load(){
+  let s;try{s=(await api('GET','/feedback/tradeweb')).signals;}catch(e){$('#fb-chips').innerHTML='<span class="chip pend">ingest Ai-Price first</span>';return;}
+  const fr=s.evaluation_freshness,cn=s.consensus_deviation,mr=s.model_review_candidates,dm=s.demand_momentum,vb=s.validation_bias;
+  $('#fb-chips').innerHTML=[`<span class="chip star">&#9733; FRESHNESS &#183; ${fr.stale_count} stale</span>`,`<span class="chip star">&#9733; CONSENSUS &#183; ${cn.off_market} off-market</span>`,`<span class="chip live">MODEL REVIEW &#183; ${mr.flagged} flagged</span>`,`<span class="chip live">DEMAND MOMENTUM &#183; ${dm.total_events} events</span>`,`<span class="chip live">VALIDATION BIAS &#183; ${vb.challenges} challenges</span>`,`<span class="chip pend">DATA QUALITY &#183; pending</span>`,`<span class="chip prosp">CONSOLIDATED &#183; prospective</span>`].join('');
+  $('#fr-cards').innerHTML=[['Screened',fr.screened],['Stale',fr.stale_count]].map(x=>`<div class="card"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
+  $('#fr-sec').innerHTML=fr.by_sector.map(x=>`<tr><td>${x.sector}</td><td class="num">${f(x.mean_beta)}</td><td class="num">${x.stale}</td></tr>`).join('');
+  $('#fr-worst').innerHTML=fr.worst_trackers.map(w=>`<tr><td class="num">${w.cusip}</td><td>${esc(w.description)}</td><td class="num">${w.trades_30d}</td><td class="num">${f(w.expected_move,3)}</td><td class="num">${f(w.actual_move,3)}</td><td class="num">${f(w.beta)}</td><td class="num">${f(w.tracking_gap_bp,1)}</td><td>${w.stale?'<span class="neg">STALE</span>':'&#8212;'}</td></tr>`).join('');
+  $('#cn-cards').innerHTML=[['Screened',cn.screened],['Off-market',cn.off_market]].map(x=>`<div class="card"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
+  let cons;try{cons=await api('GET','/consensus');$('#cn-body').innerHTML=cons.records.map(r=>`<tr><td class="num">${r.cusip}</td><td>${esc(r.description)}</td><td class="num">${f(r.ai_price)}</td><td class="num">${f(r.consensus)}</td><td class="num">${f(r.dispersion,3)}</td><td class="num">${f(r.deviation_price,3)}</td><td class="num">${f(r.deviation_bp,1)}</td><td class="num">${r.z>=0?'+':''}${f(r.z)}</td><td>${r.off_market?'<span class="neg">OFF-MARKET</span>':'&#8212;'}</td></tr>`).join('');}catch(e){}
+  $('#mr-body').innerHTML=mr.candidates.length?mr.candidates.map(c=>`<tr><td class="num">${c.cusip}</td><td>${esc(c.description)}</td><td class="num">${f(c.confidence)}</td><td class="num">${c.disloc_z>=0?'+':''}${f(c.disloc_z)}</td><td style="color:var(--muted)">${c.reasons.map(esc).join('; ')}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">None flagged.</td></tr>';
+  $('#dm-body').innerHTML=dm.by_sector.map(x=>`<tr><td>${x.sector}</td><td class="num">${x.early}</td><td class="num">${x.late}</td><td class="num">${x.momentum>=0?'+':''}${x.momentum}</td><td>${x.direction}</td></tr>`).join('');
+  $('#vb-body').innerHTML=vb.by_sector.length?vb.by_sector.map(x=>`<tr><td>${x.sector}</td><td class="num ${x.mean_bias_bp>=0?'neg':'posn'}">${x.mean_bias_bp>=0?'+':''}${f(x.mean_bias_bp,1)}</td><td class="num">${x.n}</td><td>${x.reads}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">No accepted challenges yet.</td></tr>';
+  $('#pend-cards').innerHTML=[['Data quality',s.data_quality_feedback.method],['Consolidated',s.consolidated_metrics.method]].map(x=>`<div class="card" style="min-width:260px"><div class="k">${x[0]}</div><div style="font-size:12px;color:var(--muted);margin-top:6px;white-space:normal">${esc(x[1])}</div></div>`).join('');
+}
+load();
+</script>
+<div class="foot">Synthetic data feed · for demonstration · not investment advice</div></div></body></html>

@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ service }} · Flywheel</title><style>
+:root{--paper:#fafaf7;--field:#fff;--ink:#111114;--muted:#76766e;--rule:#ddddd4;--accent:#e2001a;--pos:#0f7a4f;
+--mono:ui-monospace,'SF Mono','JetBrains Mono',monospace;--sans:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.4;letter-spacing:-0.005em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.mast{border-bottom:2px solid var(--ink);padding:28px 0 14px;display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mast h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-0.02em;text-transform:uppercase}
+.mast .x{color:var(--accent);padding:0 2px}
+.mast .meta{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right}
+.mast .meta b{color:var(--ink);font-weight:500}
+.nav{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+.nav a{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:11px 0;margin-right:22px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nav a:hover{color:var(--ink)}
+.nav a.on{color:var(--ink);border-bottom-color:var(--accent)}
+section{border-bottom:1px solid var(--rule);padding:22px 0}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.eb{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+.sh h2{font-size:16px;font-weight:700;margin:0;letter-spacing:-0.01em}
+.src{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em}
+.src .tw{color:var(--accent);font-weight:600}
+h3.sub{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;font-weight:500}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:8px}
+.card{background:#f3f2ec;padding:12px 14px}
+.card .k{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)}
+.card .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;margin-top:3px}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:14px}
+.tile{background:var(--paper);padding:11px 12px}
+.tile .k{font-family:var(--mono);font-size:9.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:21px;margin-top:3px}
+.tile .v small{font-size:10px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);text-align:left;padding:0 10px 7px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+tbody td{padding:8px 10px 8px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-family:var(--mono);font-size:12px}
+.scroll{overflow-x:auto}
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:6px 12px}
+.btn:hover{background:var(--accent);border-color:var(--accent)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+.btn.xs{padding:3px 7px;font-size:10px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.controls label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+select,input[type=number]{font-family:var(--mono);font-size:12px;padding:5px 8px;border:1px solid var(--rule);background:var(--field);color:var(--ink)}
+input[type=number]{width:90px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;padding:5px 10px;border:1px solid var(--rule)}
+.chip.live{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.star{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.pend{color:var(--muted)}
+.chip.prosp{color:var(--accent);border-color:var(--accent)}
+.sig{font-family:var(--mono);font-size:12px}
+.note{font-size:13px;color:var(--muted);line-height:1.55;border-left:3px solid var(--accent);padding:10px 14px;background:#f3f2ec;margin:0 0 16px;border-radius:0}
+.note b{color:var(--ink)}
+.foot{padding:20px 0 30px;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
+.neg{color:var(--accent)}.posn{color:var(--pos)}
+</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Flywheel<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="on">Flywheel</a><a href="/ui/feedback" class="">Model quality</a><a href="/ui/identity" class="">Identity</a></nav>
+<section>
+  <div class="sh"><span class="eb">Closed loop</span><h2>Flywheel</h2><span class="src">model &#183; <b class="tw" id="ver">&#8212;</b></span></div>
+  <div class="cards" id="fw-cards"></div>
+  <div class="tiles" id="fw-stages"></div>
+  <div class="controls"><button class="btn" id="btn-turn">Turn the flywheel</button><span class="eb" id="fw-last"></span></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Validate</span><h2>Submit a price challenge</h2><span class="src">POST /challenges</span></div>
+  <div class="controls">
+    <label>CUSIP</label><select id="ch-cusip"></select>
+    <label>Client</label><select id="ch-client"><option>Cantonal Bank</option><option>Private Bank</option><option>Asset Manager</option><option>Universal Bank</option><option>Insurance GA</option></select>
+    <label>Challenged price</label><input type="number" id="ch-price" step="0.01" placeholder="e.g. 99.50"/>
+    <button class="btn ghost" id="btn-ch">Submit challenge</button>
+    <span class="eb" id="ch-msg"></span>
+  </div>
+  <div class="scroll"><table>
+    <thead><tr><th>ID</th><th>CUSIP</th><th>Client</th><th class="num">Observed</th><th class="num">Challenged</th><th>Status</th><th class="num">Settled</th><th>Adjudicate</th></tr></thead>
+    <tbody id="ch-body"><tr><td colspan="8" class="empty">No challenges yet.</td></tr></tbody>
+  </table></div>
+</section>
+<script>
+const api=(m,u,b)=>fetch(u,{method:m,headers:b?{'Content-Type':'application/json'}:{},body:b?JSON.stringify(b):undefined}).then(r=>{if(!r.ok)throw new Error(r.status);return r.status===204?null:r.json();});
+const $=s=>document.querySelector(s);
+function badge(s){const c=s==='accepted'?'var(--pos)':s==='rejected'?'var(--accent)':'var(--muted)';return `<span class="sig" style="color:${c}">${s}</span>`;}
+async function loadFw(){const d=await api('GET','/flywheel');$('#ver').textContent=d.model_version;const c=d.counters;
+  $('#fw-cards').innerHTML=[['Priced',c.priced],['Consumed',c.consumed],['Challenged',c.challenged],['Accepted',c.accepted],['Adjustments',c.adjustments]].map(x=>`<div class="card"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
+  $('#fw-stages').innerHTML=d.stages.map((s,i)=>`<div class="tile"><div class="k">${i+1} &#183; ${s.stage}</div><div class="v">${s.metric}<small> ${s.unit}</small></div></div>`).join('');}
+async function loadCh(){const r=await api('GET','/challenges');const b=$('#ch-body');
+  if(!r.length){b.innerHTML='<tr><td colspan="8" class="empty">No challenges yet.</td></tr>';return;}
+  b.innerHTML=r.map(c=>`<tr><td class="num">${c.id}</td><td class="num">${c.cusip}</td><td>${c.client||'&#8212;'}</td><td class="num">${c.observed_price.toFixed(3)}</td><td class="num">${c.challenged_price.toFixed(3)}</td><td>${badge(c.status)}</td><td class="num">${c.settled_price!=null?c.settled_price.toFixed(3):'&#8212;'}</td><td>${c.status==='pending'?`<button class="btn ghost xs" onclick="resolveCh(${c.id},'accept')">accept</button> <button class="btn ghost xs" onclick="resolveCh(${c.id},'reject')">reject</button>`:'&#8212;'}</td></tr>`).join('');}
+async function turn(){const b=$('#btn-turn');b.disabled=true;try{const r=await api('POST','/flywheel/simulate');$('#fw-last').textContent=`last turn &#183; ${r.client} challenged ${r.challenged_cusip}: ${r.observed_price.toFixed(3)} &#8594; ${r.price_after_retrain.toFixed(3)} &#183; ${r.new_model_version}`;await loadFw();await loadCh();}catch(e){$('#fw-last').textContent='ingest Ai-Price first';}finally{b.disabled=false;}}
+async function submitCh(){const cusip=$('#ch-cusip').value,client=$('#ch-client').value,price=parseFloat($('#ch-price').value),m=$('#ch-msg');if(!price){m.textContent='enter a price';return;}try{await api('POST','/challenges',{cusip,client,challenged_price:price});m.textContent='submitted';await loadCh();}catch(e){m.textContent='error '+e.message;}}
+window.resolveCh=async(id,action)=>{await api('POST',`/challenges/${id}/resolve`,{action});await loadFw();await loadCh();};
+async function loadCusips(){try{const r=await api('GET','/ai-price/latest');$('#ch-cusip').innerHTML=r.map(x=>`<option value="${x.cusip}">${x.cusip} &#183; ${x.description}</option>`).join('');}catch(e){}}
+$('#btn-turn').addEventListener('click',turn);$('#btn-ch').addEventListener('click',submitCh);
+loadFw();loadCh();loadCusips();
+</script>
+<div class="foot">Synthetic data feed · for demonstration · not investment advice</div></div></body></html>
