@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SIX x Tradeweb - Flywheel</title></head><body style="margin:0;padding:24px;background:#f0efe9">
+<div style="background:#fafaf7;color:#111114;font-family:Helvetica,Arial,sans-serif;border:1px solid #ddddd4;padding:22px 24px;max-width:980px">
+  <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #111114;padding-bottom:12px;margin-bottom:16px">
+    <span style="font-family:ui-monospace,monospace;font-size:12px;letter-spacing:0.13em;color:#76766e">FLYWHEEL &#183; CLOSED LOOP</span>
+    <span style="background:#111114;color:#fafaf7;font-family:ui-monospace,monospace;font-size:11px;letter-spacing:0.1em;padding:6px 16px;border-radius:6px">SELF-IMPROVING</span>
+  </div>
+
+  <!-- stepper -->
+  <div style="text-align:center;font-family:ui-monospace,monospace;font-size:12px;color:#76766e;margin-bottom:16px">
+    1 Tradeweb prices &#8594; 2 SIX distributes &#8594; 3 Clients validate &#8594; 4 SIX feeds back &#8594; 5 Tradeweb retrains &nbsp;<span style="color:#e2001a">&#8635;</span>
+  </div>
+
+  <!-- 5 stage cards -->
+  <table style="width:100%;border-collapse:separate;border-spacing:6px 0"><tr style="vertical-align:top">
+    <td style="width:20%;border:1px solid #111114;padding:11px 12px">
+      <div style="font-family:ui-monospace,monospace;font-size:11px;color:#76766e">1 &#183; TRADEWEB PRICES</div>
+      <div style="font-size:13px;margin:6px 0 8px">Evaluated Ai-Price feed is ingested.</div>
+      <div style="font-family:ui-monospace,monospace;font-size:10.5px;color:#76766e">POST /ai-price/refresh</div>
+      <div style="margin-top:7px"><span style="font-family:ui-monospace,monospace;font-size:10px;color:#0f7a4f;border:1px solid #0f7a4f;padding:2px 6px">AiPriceQuote</span></div>
+    </td>
+    <td style="width:20%;border:1px solid #111114;padding:11px 12px">
+      <div style="font-family:ui-monospace,monospace;font-size:11px;color:#76766e">2 &#183; SIX DISTRIBUTES</div>
+      <div style="font-size:13px;margin:6px 0 8px">Client consumes; consumption is logged.</div>
+      <div style="font-family:ui-monospace,monospace;font-size:10.5px;color:#76766e">GET /ai-price/latest</div>
+      <div style="margin-top:7px"><span style="font-family:ui-monospace,monospace;font-size:10px;color:#0f7a4f;border:1px solid #0f7a4f;padding:2px 6px">UsageEvent</span></div>
+    </td>
+    <td style="width:20%;border:1px solid #111114;padding:11px 12px">
+      <div style="font-family:ui-monospace,monospace;font-size:11px;color:#76766e">3 &#183; CLIENTS VALIDATE</div>
+      <div style="font-size:13px;margin:6px 0 8px">Client disputes an evaluated price.</div>
+      <div style="font-family:ui-monospace,monospace;font-size:10.5px;color:#76766e">POST /challenges</div>
+      <div style="margin-top:7px"><span style="font-family:ui-monospace,monospace;font-size:10px;color:#0f7a4f;border:1px solid #0f7a4f;padding:2px 6px">PriceChallenge</span></div>
+    </td>
+    <td style="width:20%;border:1px solid #111114;padding:11px 12px">
+      <div style="font-family:ui-monospace,monospace;font-size:11px;color:#76766e">4 &#183; SIX FEEDS BACK</div>
+      <div style="font-size:13px;margin:6px 0 8px">Accept &#8594; correction = settled &#8722; observed.</div>
+      <div style="font-family:ui-monospace,monospace;font-size:10.5px;color:#76766e">/challenges/&#8230;/resolve</div>
+      <div style="margin-top:7px"><span style="font-family:ui-monospace,monospace;font-size:10px;color:#0f7a4f;border:1px solid #0f7a4f;padding:2px 6px">ModelAdjustment</span></div>
+    </td>
+    <td style="width:20%;border:1px solid #e2001a;padding:11px 12px">
+      <div style="font-family:ui-monospace,monospace;font-size:11px;color:#e2001a">5 &#183; TRADEWEB RETRAINS</div>
+      <div style="font-size:13px;margin:6px 0 8px">Correction applied next ingest; price moves, confidence lifts.</div>
+      <div style="font-family:ui-monospace,monospace;font-size:10.5px;color:#76766e">apply_feedback()</div>
+      <div style="margin-top:7px"><span style="font-family:ui-monospace,monospace;font-size:10px;color:#e2001a;border:1px solid #e2001a;padding:2px 6px">model_version +fbN</span></div>
+    </td>
+  </tr></table>
+
+  <!-- loop back band -->
+  <div style="border:1px dashed #e2001a;padding:12px 16px;margin-top:14px;text-align:center;font-size:13px;color:#111114">
+    <span style="color:#e2001a;font-family:ui-monospace,monospace">&#8635;</span> <b>Better prices return to SIX.</b> The accepted <i>ModelAdjustment</i> is applied at the next ingest, so the next snapshot moves toward the correction and the version steps to <span style="font-family:ui-monospace,monospace">+fbN</span> &#8212; then the cycle repeats.
+  </div>
+
+  <div style="margin-top:14px;font-size:13px;color:#76766e;text-align:center">
+    <b style="color:#111114">Feedback to Tradeweb</b> (/feedback/tradeweb): <b style="color:#0f7a4f">live</b> &#8212; model review &#183; demand &#183; validation &nbsp;|&nbsp; <b>pending</b> &#8212; data quality &#183; consolidated
+  </div>
+
+  <p style="color:#76766e;font-size:12.5px;line-height:1.55;margin:16px 0 0;border-top:2px solid #111114;padding-top:12px">The loop <i>events</i> (usage, challenges, adjustments) are real in-app records. The <i>retrain</i> is a transparent additive price adjustment, not a real machine-learning update &#8212; the loop architecture is real; the learning step is a placeholder.</p>
+</div>
+
+</body></html>

@@ -1,0 +1,80 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SIX x Tradeweb - System Flow</title></head><body style="margin:0;padding:24px;background:#f0efe9">
+<div style="background:#fafaf7;color:#111114;font-family:Helvetica,Arial,sans-serif;border:1px solid #ddddd4;padding:22px 24px;max-width:980px">
+  <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #111114;padding-bottom:12px;margin-bottom:18px">
+    <span style="font-family:ui-monospace,monospace;font-size:12px;letter-spacing:0.13em;color:#76766e">SIX <span style="color:#e2001a">&#215;</span> TRADEWEB &#183; HOW EVERYTHING CONNECTS</span>
+    <span style="background:#111114;color:#fafaf7;font-family:ui-monospace,monospace;font-size:11px;letter-spacing:0.1em;padding:6px 16px;border-radius:6px">HIGH LEVEL</span>
+  </div>
+
+  <!-- A: sources -->
+  <table style="width:100%;border-collapse:separate;border-spacing:0"><tr style="vertical-align:top">
+    <td style="width:50%;border:1px solid #111114;border-right:none;padding:14px 16px">
+      <div style="font-family:ui-monospace,monospace;font-size:11px;letter-spacing:0.1em;color:#e2001a">TRADEWEB &#183; SOURCES</div>
+      <div style="margin-top:8px">
+        <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#76766e;border:1px solid #ddddd4;padding:4px 9px;margin:0 6px 6px 0">Municipal Ai-Price</span>
+        <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#76766e;border:1px solid #ddddd4;padding:4px 9px;margin:0 6px 6px 0">FI evaluated quotes</span>
+        <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#76766e;border:1px solid #ddddd4;padding:4px 9px;margin:0 6px 6px 0">Dealerweb top-of-book</span>
+      </div>
+    </td>
+    <td style="width:50%;border:1px solid #111114;padding:14px 16px">
+      <div style="font-family:ui-monospace,monospace;font-size:11px;letter-spacing:0.1em;color:#76766e">SIX &#183; INPUTS</div>
+      <div style="margin-top:8px">
+        <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#76766e;border:1px solid #ddddd4;padding:4px 9px;margin:0 6px 6px 0">Reference / identity</span>
+        <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#76766e;border:1px solid #ddddd4;padding:4px 9px;margin:0 6px 6px 0">Corporate actions</span>
+        <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#76766e;border:1px solid #ddddd4;padding:4px 9px;margin:0 6px 6px 0">Rates curves (SARON / USD)</span>
+      </div>
+    </td>
+  </tr></table>
+  <div style="text-align:center;color:#76766e;font-family:ui-monospace,monospace;font-size:16px;margin:6px 0">&#8595;</div>
+
+  <!-- B: ingest -->
+  <div style="border:1px solid #111114;padding:13px 16px;text-align:center">
+    <b>Ingest + retrain</b> &nbsp;<span style="font-family:ui-monospace,monospace;font-size:12px;color:#76766e">POST /ai-price/refresh &#183; apply_feedback()</span>
+  </div>
+  <div style="text-align:center;color:#76766e;font-family:ui-monospace,monospace;font-size:16px;margin:6px 0">&#8595;</div>
+
+  <!-- C: storage -->
+  <div style="border:1px solid #ddddd4;padding:13px 16px;text-align:center;background:#f3f2ec">
+    <b>Storage</b> &nbsp;<span style="font-family:ui-monospace,monospace;font-size:12px;color:#76766e">AiPriceQuote &#183; DealerwebQuote &#183; Portfolios</span>
+  </div>
+  <div style="text-align:center;color:#76766e;font-family:ui-monospace,monospace;font-size:16px;margin:6px 0">&#8595;</div>
+
+  <!-- D: analytics -->
+  <div style="border:1px solid #111114;padding:14px 16px">
+    <div style="font-family:ui-monospace,monospace;font-size:11px;letter-spacing:0.1em;color:#76766e;text-align:center">SIX ANALYTICS &#183; THE PRODUCT</div>
+    <div style="text-align:center;margin-top:8px">
+      <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#0f7a4f;border:1px solid #0f7a4f;padding:4px 8px;margin:3px">Tax-equivalent yield</span>
+      <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#0f7a4f;border:1px solid #0f7a4f;padding:4px 8px;margin:3px">Relative value</span>
+      <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#0f7a4f;border:1px solid #0f7a4f;padding:4px 8px;margin:3px">Portfolio risk</span>
+      <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#0f7a4f;border:1px solid #0f7a4f;padding:4px 8px;margin:3px">Liquidity GPS</span>
+      <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#0f7a4f;border:1px solid #0f7a4f;padding:4px 8px;margin:3px">Enriched bundle</span>
+      <span style="display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:#0f7a4f;border:1px solid #0f7a4f;padding:4px 8px;margin:3px">Closed-loop signals</span>
+    </div>
+  </div>
+  <div style="text-align:center;color:#76766e;font-family:ui-monospace,monospace;font-size:16px;margin:6px 0">&#8595;</div>
+
+  <!-- E: distribute -->
+  <div style="border:1px solid #111114;padding:13px 16px;text-align:center"><b>Distribute to bank clients</b></div>
+  <div style="text-align:center;color:#76766e;font-family:ui-monospace,monospace;font-size:16px;margin:6px 0">&#8595;</div>
+
+  <!-- F: client loop -->
+  <table style="width:100%;border-collapse:separate;border-spacing:0"><tr style="vertical-align:middle">
+    <td style="width:31%;border:1px solid #111114;padding:12px 14px;text-align:center"><b>Consume</b><br><span style="font-family:ui-monospace,monospace;font-size:11px;color:#76766e">UsageEvent</span></td>
+    <td style="width:3.5%;text-align:center;color:#76766e;font-family:ui-monospace,monospace">&#8594;</td>
+    <td style="width:31%;border:1px solid #111114;padding:12px 14px;text-align:center"><b>Validate</b><br><span style="font-family:ui-monospace,monospace;font-size:11px;color:#76766e">PriceChallenge</span></td>
+    <td style="width:3.5%;text-align:center;color:#76766e;font-family:ui-monospace,monospace">&#8594;</td>
+    <td style="width:31%;border:1px solid #111114;padding:12px 14px;text-align:center"><b>Adjudicate</b><br><span style="font-family:ui-monospace,monospace;font-size:11px;color:#76766e">ModelAdjustment</span></td>
+  </tr></table>
+  <div style="text-align:center;color:#76766e;font-family:ui-monospace,monospace;font-size:16px;margin:6px 0">&#8595;</div>
+
+  <!-- G: feedback -->
+  <div style="border:1px solid #111114;padding:14px 16px">
+    <div style="font-family:ui-monospace,monospace;font-size:11px;letter-spacing:0.1em;color:#76766e;text-align:center">FEEDBACK TO TRADEWEB &#183; /feedback/tradeweb</div>
+    <div style="text-align:center;margin-top:8px;font-size:13px">
+      <b>live:</b> model review &#183; demand &#183; validation &nbsp;&nbsp;|&nbsp;&nbsp; <span style="color:#76766e"><b>pending:</b> data quality &#183; consolidated</span>
+    </div>
+  </div>
+
+  <p style="color:#76766e;font-size:13px;line-height:1.55;margin:18px 0 0;border-top:2px solid #111114;padding-top:12px"><b style="color:#111114">&#8635; Two returns close the loop.</b> The <i>ModelAdjustment</i> is re-applied at the next Ingest (retrain), and the feedback <i>signals</i> flow to Tradeweb. Instrument identity is created upstream (reference data) and assumed throughout &#8212; every storage and loop join keys on CUSIP.</p>
+</div>
+
+</body></html>

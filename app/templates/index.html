@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{{ service }}</title>
+<style>
+  :root{
+    --paper:#fafaf7;--field:#fff;--ink:#111114;--muted:#76766e;--rule:#ddddd4;
+    --rule-strong:#111114;--accent:#e2001a;--pos:#0f7a4f;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono","Roboto Mono",monospace;
+    --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.4;letter-spacing:-0.005em}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .mast{border-bottom:2px solid var(--rule-strong);padding:28px 0 14px;display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .mast h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-0.02em;text-transform:uppercase}
+  .mast .x{color:var(--accent);padding:0 2px}
+  .mast .meta{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right}
+  .mast .meta b{color:var(--ink);font-weight:500}
+  .rel{font-size:12.5px;color:var(--muted);line-height:1.5;border-bottom:1px solid var(--rule);padding:12px 0 16px;margin:0;max-width:820px}
+  .rel b{color:var(--ink);font-weight:600}
+  section{border-bottom:1px solid var(--rule);padding:22px 0}
+  .sh{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+  .eb{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+  .sh h2{font-size:16px;font-weight:700;margin:0;letter-spacing:-0.01em}
+  .src{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em}
+  .src .tw{color:var(--accent);font-weight:600}
+  .prospective{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:1px 6px;margin-left:8px}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:6px 12px}
+  .btn:hover{background:var(--accent);border-color:var(--accent)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn.ghost:hover{background:var(--ink);color:var(--paper)}
+  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .controls label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+  select,input[type=number]{font-family:var(--mono);font-size:12px;padding:5px 8px;border:1px solid var(--rule);background:var(--field);color:var(--ink);width:auto}
+  input[type=number]{width:64px}
+  .tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:18px}
+  .tile{background:var(--paper);padding:12px 14px}
+  .tile .k{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+  .tile .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:20px;font-weight:500;margin-top:4px}
+  .tile .v small{font-size:11px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse}
+  thead th{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);text-align:left;padding:0 10px 8px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+  tbody td{padding:9px 10px 9px 0;border-bottom:1px solid var(--rule);vertical-align:middle;white-space:nowrap}
+  tbody tr:last-child td{border-bottom:none}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+  .sym{font-weight:600}
+  .tag{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--rule);padding:1px 6px}
+  .sig{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:1px 6px;border:1px solid currentColor}
+  .sig.cheap{color:var(--pos)}.sig.rich{color:var(--accent)}.sig.fair{color:var(--muted)}
+  .conf{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+  .conf .track{width:54px;height:6px;background:var(--rule);position:relative}
+  .conf .fill{position:absolute;inset:0 auto 0 0;background:var(--accent)}
+  .conf .val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px;min-width:34px;text-align:right}
+  .neg{color:var(--accent)}.posn{color:var(--pos)}
+  .pcard{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)}
+  .wbar{display:flex;height:10px;margin-top:10px;border:1px solid var(--rule)}
+  .wbar span{display:block;height:100%}
+  .empty{color:var(--muted);font-size:13px;padding:16px 0}
+  .err{color:var(--accent);font-family:var(--mono);font-size:12px;padding:10px 0}
+  .foot{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.06em;padding:18px 0 40px;text-transform:uppercase}
+  .scroll{overflow-x:auto}
+  @media(max-width:780px){.tiles{grid-template-columns:repeat(3,1fr)}.pcard{grid-template-columns:repeat(2,1fr)}}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <h1>SIX <span class="x">×</span> Tradeweb</h1>
+    <div class="meta">Data &amp; analytics service<br><b id="clock">—</b></div>
+  </header>
+
+  <p class="rel">SIX operates its own exchange and distributes <b>Tradeweb</b> data products — notably <b>Municipal Ai-Price</b> (since 2022). This console turns those feeds into analytics SIX can monetise: tax-equivalent yield, relative value, portfolio risk, and inter-dealer liquidity intelligence. <b>Dealerweb</b> panels are marked prospective (not a current SIX product).</p>
+
+  <!-- Ai-Price + muni analytics -->
+  <section id="sec-aiprice">
+    <div class="sh"><span class="eb">Municipal · Ai-Price</span><h2>Evaluated pricing &amp; relative value</h2><span class="src">source · <span class="tw">Tradeweb</span> · <span id="model-ver">—</span></span></div>
+    <div class="controls">
+      <button class="btn" id="btn-ai">Ingest snapshot</button>
+      <button class="btn ghost" id="btn-ai-intra">Intraday</button>
+      <label>State</label>
+      <select id="state-filter"><option value="">All</option><option>CA</option><option>NY</option><option>TX</option><option>IL</option><option>FL</option><option>MD</option></select>
+      <label>Marginal tax %</label>
+      <input type="number" id="tax-rate" value="37" min="0" max="99" step="1" />
+    </div>
+    <div class="tiles" id="ai-tiles"></div>
+    <div class="scroll">
+    <table>
+      <thead><tr>
+        <th>CUSIP</th><th>Description</th><th>St</th><th>Rtg</th><th>Sector</th>
+        <th class="num">Bid</th><th class="num">Mid</th><th class="num">Ask</th>
+        <th class="num">Yield</th><th class="num">TEY</th><th class="num">Spd bp</th>
+        <th class="num">Dur</th><th class="num">Liq</th><th>RV</th><th class="num">Conf</th>
+      </tr></thead>
+      <tbody id="ai-body"><tr><td colspan="15" class="empty">Ingest a snapshot to populate Ai-Price.</td></tr></tbody>
+    </table>
+    </div>
+    <div class="err" id="ai-err" hidden></div>
+  </section>
+
+  <!-- Liquidity intelligence / GPS -->
+  <section id="sec-gps">
+    <div class="sh"><span class="eb">Liquidity intelligence</span><h2>Liquidity GPS<span class="prosp" style="color:#76766e;border-color:#ddddd4">Model B · proxy</span></h2><span class="src">signals · z-score · drift</span></div>
+    <div class="controls"><button class="btn" id="btn-gps">Refresh signals</button><span id="gps-note" class="eb" style="margin-left:4px"></span></div>
+    <div id="gps-meterwrap" style="margin-bottom:16px"></div>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Sector</th><th class="num">Z</th><th class="num">Drift</th><th>Stretch</th><th>Trend</th><th>Risk</th><th>90-day bid/ask</th><th class="num">Stress</th></tr></thead>
+      <tbody id="gps-body"><tr><td colspan="8" class="empty">Refresh signals to compute the liquidity GPS.</td></tr></tbody>
+    </table>
+    </div>
+    <div class="err" id="gps-err" hidden></div>
+  </section>
+
+  <!-- Portfolio risk -->
+  <section id="sec-pf">
+    <div class="sh"><span class="eb">Portfolio</span><h2>Valuation &amp; risk</h2><span class="src">marks · <span class="tw">Ai-Price</span></span></div>
+    <div class="controls"><label>Portfolio</label><select id="pf-select"></select></div>
+    <div class="pcard" id="pf-card"></div>
+    <div id="pf-weights"></div>
+    <div class="err" id="pf-err" hidden></div>
+  </section>
+
+  <!-- Dealerweb -->
+  <section id="sec-dw">
+    <div class="sh"><span class="eb">Inter-dealer</span><h2>Dealerweb rates &amp; MBS<span class="prospective">Prospective</span></h2><span class="src">top-of-book · <span class="tw">Dealerweb</span></span></div>
+    <div class="controls"><button class="btn" id="btn-dw">Refresh top-of-book</button></div>
+    <div class="tiles" id="dw-tiles" style="grid-template-columns:repeat(4,1fr)"></div>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Product</th><th>Instrument</th><th>Tenor</th><th class="num">Cpn</th><th class="num">Bid</th><th class="num">Ask</th><th class="num">Spd bp</th><th class="num">Bid sz</th><th class="num">Ask sz</th><th class="num">Liq</th></tr></thead>
+      <tbody id="dw-body"><tr><td colspan="10" class="empty">Refresh to load inter-dealer top-of-book.</td></tr></tbody>
+    </table>
+    </div>
+    <div class="err" id="dw-err" hidden></div>
+  </section>
+
+  <!-- SIX enriched bundle -->
+  <section id="sec-bundle">
+    <div class="sh"><span class="eb">SIX product</span><h2>Enriched bundle</h2><span class="src">Tradeweb price + <span class="tw">SIX</span> rates · reference · corp-actions</span></div>
+    <div class="controls"><button class="btn" id="btn-bundle">Assemble bundle</button><span id="bundle-bench" class="eb"></span></div>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>CUSIP</th><th>ISIN <span style="text-transform:none;letter-spacing:0">(derived)</span></th><th>Description</th><th class="num">Mid</th><th class="num">Yield</th><th class="num">Risk-free</th><th class="num">TEY spd</th><th class="num">Disloc Z</th><th class="num">Drift</th><th>RV</th></tr></thead>
+      <tbody id="bundle-body"><tr><td colspan="10" class="empty">Assemble the bundle to view the enriched product.</td></tr></tbody>
+    </table>
+    </div>
+    <div class="err" id="bundle-err" hidden></div>
+  </section>
+
+  <!-- Closed-loop flywheel -->
+  <section id="sec-flywheel">
+    <div class="sh"><span class="eb">Closed loop</span><h2>Flywheel</h2><span class="src">model · <span id="fw-ver" class="tw">—</span></span></div>
+    <div class="controls"><button class="btn" id="btn-fw">Turn the flywheel</button><span id="fw-last" class="eb"></span></div>
+    <div id="fw-stages" class="tiles" style="grid-template-columns:repeat(5,1fr)"></div>
+  </section>
+
+  <!-- Feedback back to Tradeweb -->
+  <section id="sec-feedback">
+    <div class="sh"><span class="eb">SIX → Tradeweb</span><h2>Model-quality feedback</h2><span class="src">computed by <span class="tw">SIX</span></span></div>
+    <div id="fb-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>CUSIP</th><th>Description</th><th class="num">Confidence</th><th class="num">Disloc Z</th><th>Why flagged for review</th></tr></thead>
+      <tbody id="fb-body"><tr><td colspan="5" class="empty">Ingest Ai-Price to compute review candidates.</td></tr></tbody>
+    </table>
+    </div>
+    <div class="err" id="fb-err" hidden></div>
+  </section>
+
+  <div class="foot">Synthetic data feed · for demonstration · not investment advice</div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const f=(n,d=2)=>Number(n).toFixed(d);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const SECTOR_COLOR={GO:'#185fa5',REVENUE:'#0f7a4f'};
+
+function tick(){$('#clock').textContent=new Date().toISOString().slice(0,19).replace('T',' ')+'Z'}
+setInterval(tick,1000);tick();
+
+async function api(method,path){
+  const r=await fetch(path,{method});
+  if(!r.ok){let d=r.statusText;try{d=(await r.json()).detail||d}catch(_){}throw new Error(d)}
+  return r.json();
+}
+function showErr(s,m){const e=$(s);e.textContent='Error: '+m;e.hidden=false}
+function clrErr(s){const e=$(s);e.hidden=true;e.textContent=''}
+function rate(){return Math.min(0.99,Math.max(0,Number($('#tax-rate').value)/100))}
+
+async function refreshAi(intraday){
+  const b=intraday?$('#btn-ai-intra'):$('#btn-ai');b.disabled=true;clrErr('#ai-err');
+  try{
+    const st=$('#state-filter').value;const q=(st?`?state=${st}`:'?')+ (intraday?'&intraday=true':'');
+    const res=await api('POST','/ai-price/refresh'+q);
+    $('#model-ver').textContent=res.model_version+' · '+res.price_type;
+    await loadAi();
+    await loadPfValuation();
+    await loadGps();
+  }catch(e){showErr('#ai-err',e.message)}finally{b.disabled=false}
+}
+
+async function loadAi(){
+  const st=$('#state-filter').value;const mr=rate();
+  const qs=st?`?state=${st}`:'';
+  let latest,rv,summary;
+  try{
+    latest=await api('GET','/ai-price/latest'+qs);
+  }catch(e){return}
+  if(!latest.length){$('#ai-body').innerHTML='<tr><td colspan="15" class="empty">No rows. Ingest a snapshot.</td></tr>';$('#ai-tiles').innerHTML='';return}
+  try{rv=await api('GET','/ai-price/analytics/relative-value')}catch(_){rv=[]}
+  try{summary=await api('GET','/ai-price/analytics/summary?marginal_rate='+mr+qs.replace('?','&'))}catch(_){summary=null}
+  const sigBy={};rv.forEach(r=>sigBy[r.cusip]=r.signal);
+
+  if(summary){
+    $('#ai-tiles').innerHTML=[
+      ['Bonds priced',summary.count],
+      ['Avg yield',f(summary.avg_yield,2)+'<small>%</small>'],
+      ['Avg TEY @'+Math.round(mr*100)+'%',f(summary.avg_tax_equivalent_yield,2)+'<small>%</small>'],
+      ['Avg spread',f(summary.avg_benchmark_spread_bp,0)+'<small>bp</small>'],
+      ['Avg duration',f(summary.avg_effective_duration,1)+'<small>y</small>'],
+      ['Illiquid',summary.illiquid_pct+'<small>%</small>']
+    ].map(t=>`<div class="tile"><div class="k">${t[0]}</div><div class="v">${t[1]}</div></div>`).join('');
+  }
+
+  $('#ai-body').innerHTML=latest.map(r=>{
+    const tey=Number(r.ai_yield)/(1-mr);
+    const conf=Math.round(r.confidence*100);
+    const sig=sigBy[r.cusip]||'fair';
+    const chg=r.price_change_1d;
+    return `<tr>
+      <td class="num">${r.cusip}</td><td>${esc(r.description)}</td><td>${r.state}</td>
+      <td><span class="tag">${r.rating_sp}</span></td><td>${r.sector}</td>
+      <td class="num">${f(r.eval_bid,2)}</td>
+      <td class="num">${f(r.ai_price,2)} <span class="${chg<0?'neg':'posn'}" style="font-size:11px">${chg>=0?'+':''}${f(chg,2)}</span></td>
+      <td class="num">${f(r.eval_ask,2)}</td>
+      <td class="num">${f(r.ai_yield,2)}</td><td class="num">${f(tey,2)}</td>
+      <td class="num">${f(r.benchmark_spread_bp,0)}</td><td class="num">${f(r.effective_duration,1)}</td>
+      <td class="num">${f(r.liquidity_score,0)}</td>
+      <td><span class="sig ${sig}">${sig}</span></td>
+      <td><div class="conf"><span class="track"><span class="fill" style="width:${conf}%"></span></span><span class="val">${conf}%</span></div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadPortfolios(){
+  let pfs;try{pfs=await api('GET','/portfolios')}catch(e){return}
+  $('#pf-select').innerHTML=pfs.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  if(pfs.length)loadPfValuation();
+}
+async function loadPfValuation(){
+  clrErr('#pf-err');const id=$('#pf-select').value;if(!id)return;
+  try{
+    const v=await api('GET',`/portfolios/${id}/valuation?marginal_rate=${rate()}`);
+    if(!v.market_value||!v.rating_weights){
+      $('#pf-card').innerHTML='<div class="tile" style="grid-column:1/-1"><div class="empty">Ingest an Ai-Price snapshot to mark this portfolio.</div></div>';
+      $('#pf-weights').innerHTML='';
+      return;
+    }
+    $('#pf-card').innerHTML=[
+      ['Market value','$'+Number(v.market_value).toLocaleString(undefined,{maximumFractionDigits:0})],
+      ['Wtd yield',f(v.weighted_yield,2)+'<small>%</small>'],
+      ['Wtd TEY',f(v.weighted_tax_equivalent_yield,2)+'<small>%</small>'],
+      ['Wtd duration',f(v.weighted_duration,2)+'<small>y</small>'],
+      ['Portfolio DV01','$'+Number(v.portfolio_dv01).toLocaleString(undefined,{maximumFractionDigits:0})]
+    ].map(t=>`<div class="tile"><div class="k">${t[0]}</div><div class="v">${t[1]}</div></div>`).join('');
+    const segs=Object.entries(v.rating_weights).map(([k,w])=>{
+      const grey=k.startsWith('AAA')?'#111114':k.startsWith('AA')?'#444441':k.startsWith('A')?'#76766e':'#e2001a';
+      return `<span title="${k} ${(w*100).toFixed(0)}%" style="width:${(w*100).toFixed(1)}%;background:${grey}"></span>`;
+    }).join('');
+    $('#pf-weights').innerHTML=`<div style="font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-top:14px">Rating allocation</div><div class="wbar">${segs}</div>`;
+  }catch(e){showErr('#pf-err',e.message)}
+}
+
+async function refreshDw(){
+  const b=$('#btn-dw');b.disabled=true;clrErr('#dw-err');
+  try{await api('POST','/dealerweb/refresh');await loadDw();await loadGps()}catch(e){showErr('#dw-err',e.message)}finally{b.disabled=false}
+}
+async function loadDw(){
+  let rows;try{rows=await api('GET','/dealerweb/top-of-book')}catch(e){return}
+  if(!rows.length){$('#dw-body').innerHTML='<tr><td colspan="10" class="empty">No data. Refresh top-of-book.</td></tr>';return}
+  let a=null;try{a=await api('GET','/dealerweb/analytics/liquidity')}catch(_){}
+  if(a){
+    const tiles=[];
+    if(a.UST){tiles.push(['UST avg spread',f(a.UST.avg_spread_bp,1)+'<small>bp</small>']);tiles.push(['UST tightest',a.UST.tightest]);}
+    if(a.TBA_MBS){tiles.push(['MBS avg spread',f(a.TBA_MBS.avg_spread_bp,1)+'<small>bp</small>']);tiles.push(['MBS depth','$'+Math.round(a.TBA_MBS.total_top_of_book_mm)+'<small>mm</small>']);}
+    $('#dw-tiles').innerHTML=tiles.map(t=>`<div class="tile"><div class="k">${t[0]}</div><div class="v" style="font-size:16px">${t[1]}</div></div>`).join('');
+  }
+  $('#dw-body').innerHTML=rows.map(r=>`<tr>
+    <td><span class="tag">${r.product}</span></td><td class="sym">${esc(r.instrument)}</td><td>${r.tenor}</td>
+    <td class="num">${r.coupon!=null?f(r.coupon,1):'—'}</td>
+    <td class="num">${f(r.bid,3)}</td><td class="num">${f(r.ask,3)}</td>
+    <td class="num">${f(r.spread_bp,1)}</td>
+    <td class="num">${f(r.bid_size_mm,0)}</td><td class="num">${f(r.ask_size_mm,0)}</td>
+    <td class="num">${f(r.liquidity_score,0)}</td></tr>`).join('');
+}
+
+function sparkline(series,rising){
+  if(!series||series.length<2)return'';
+  const w=120,h=26,n=series.length,mn=Math.min(...series),mx=Math.max(...series),rg=(mx-mn)||1;
+  const pts=series.map((v,i)=>`${(i/(n-1)*w).toFixed(1)},${(h-((v-mn)/rg)*h).toFixed(1)}`).join(' ');
+  const col=rising>0.5?'#e2001a':rising<-0.5?'#0f7a4f':'#76766e';
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.5"/></svg>`;
+}
+function riskColor(r){return r==='High'?'#e2001a':r==='Medium'?'#76766e':'#0f7a4f'}
+
+async function refreshGps(){
+  const b=$('#btn-gps');b.disabled=true;clrErr('#gps-err');$('#gps-note').textContent='ingesting feeds…';
+  try{
+    await api('POST','/ai-price/refresh');
+    await api('POST','/dealerweb/refresh');
+    await loadAi();await loadPfValuation();await loadDw();
+    await loadGps();
+    $('#gps-note').textContent='';
+  }catch(e){showErr('#gps-err',e.message)}finally{b.disabled=false}
+}
+async function loadGps(){
+  let g;try{g=await api('GET','/liquidity/stress')}catch(e){
+    $('#gps-body').innerHTML='<tr><td colspan="8" class="empty">Refresh signals to compute the liquidity GPS.</td></tr>';
+    $('#gps-meterwrap').innerHTML='';return;
+  }
+  const sc=g.overall_score,col=sc>=68?'#e2001a':sc>=45?'#76766e':'#0f7a4f';
+  $('#gps-meterwrap').innerHTML=`
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <span class="eb">Overall stress</span>
+      <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;color:${col}">${sc}</span>
+      <span style="font-size:13px;color:var(--muted)">${esc(g.interpretation)}</span>
+    </div>
+    <div style="height:8px;background:var(--rule);margin-top:8px;position:relative;max-width:520px">
+      <span style="position:absolute;inset:0 auto 0 0;width:${sc}%;background:${col}"></span>
+    </div>`;
+  $('#gps-body').innerHTML=g.sectors.map(s=>{
+    const rc=riskColor(s.risk),dc=s.drift>=0.5?'#e2001a':s.drift<=-0.5?'#0f7a4f':'#76766e';
+    return `<tr>
+      <td class="sym">${esc(s.sector)}</td>
+      <td class="num">${f(s.z,2)}</td>
+      <td class="num" style="color:${dc}">${s.drift>=0?'+':''}${f(s.drift,2)}</td>
+      <td><span class="tag">${s.stretch}</span></td>
+      <td style="color:${dc};font-family:var(--mono);font-size:11px">${s.drift_dir}</td>
+      <td><span class="sig" style="color:${rc}">${s.risk}</span></td>
+      <td>${sparkline(s.series,s.drift)}</td>
+      <td class="num" style="font-weight:500;color:${rc}">${s.stress}</td>
+    </tr>`;
+  }).join('');
+}
+
+$('#btn-ai').addEventListener('click',()=>refreshAi(false));
+$('#btn-ai-intra').addEventListener('click',()=>refreshAi(true));
+$('#state-filter').addEventListener('change',loadAi);
+$('#tax-rate').addEventListener('change',()=>{loadAi();loadPfValuation();loadBundle();loadFeedback()});
+$('#pf-select').addEventListener('change',loadPfValuation);
+$('#btn-dw').addEventListener('click',refreshDw);
+async function refreshBundle(){
+  const b=$('#btn-bundle');b.disabled=true;clrErr('#bundle-err');
+  try{await api('POST','/ai-price/refresh');await loadAi();await loadPfValuation();await loadGps();await loadBundle();await loadFeedback();}
+  catch(e){showErr('#bundle-err',e.message)}finally{b.disabled=false}
+}
+async function loadBundle(){
+  let d;try{d=await api('GET','/enriched/signals?marginal_rate='+rate())}catch(e){
+    $('#bundle-body').innerHTML='<tr><td colspan="10" class="empty">Ingest Ai-Price, then assemble the bundle.</td></tr>';
+    $('#bundle-bench').textContent='';return;
+  }
+  $('#bundle-bench').textContent=d.components.join('  +  ')+'  →  dislocation';
+  $('#bundle-body').innerHTML=d.records.map(r=>{
+    var dc=r.disloc_drift>=0.5?'var(--accent)':r.disloc_drift<=-0.5?'var(--pos)':'var(--muted)';
+    var rc=r.rv_signal==='cheap'?'var(--pos)':r.rv_signal==='rich'?'var(--accent)':'var(--muted)';
+    return `<tr>
+    <td class="num">${r.cusip}</td>
+    <td class="num">${r.isin}</td>
+    <td>${esc(r.canonical_name)}</td>
+    <td class="num">${f(r.ai_price)}</td>
+    <td class="num">${f(r.ai_yield)}</td>
+    <td class="num">${f(r.risk_free_rate)}</td>
+    <td class="num posn">+${r.tax_equivalent_spread_bp.toFixed(0)}</td>
+    <td class="num">${f(r.disloc_z)}</td>
+    <td class="num" style="color:${dc}">${r.disloc_drift>=0?'+':''}${f(r.disloc_drift)}</td>
+    <td><span class="sig" style="color:${rc}">${r.rv_signal}</span></td></tr>`;
+  }).join('');
+}
+
+async function loadFlywheel(){
+  let d;try{d=await api('GET','/flywheel')}catch(e){$('#fw-stages').innerHTML='';return}
+  $('#fw-ver').textContent=d.model_version;
+  $('#fw-stages').innerHTML=d.stages.map((s,i)=>`<div class="tile"><div class="k">${i+1} · ${esc(s.stage)}</div><div class="v">${s.metric}<small> ${esc(s.unit)}</small></div></div>`).join('');
+}
+async function turnFlywheel(){
+  const b=$('#btn-fw');b.disabled=true;$('#fw-last').textContent='turning…';
+  try{
+    const r=await api('POST','/flywheel/simulate');
+    $('#fw-last').textContent=`last turn · ${r.challenged_cusip}: ${r.observed_price.toFixed(3)} → ${r.price_after_retrain.toFixed(3)} · ${r.new_model_version}`;
+    await loadAi();await loadBundle();await loadGps();await loadPfValuation();await loadFeedback();await loadFlywheel();
+  }catch(e){$('#fw-last').textContent='ingest Ai-Price first';}finally{b.disabled=false}
+}
+$('#btn-fw').addEventListener('click',turnFlywheel);
+
+async function loadFeedback(){
+  let d;try{d=await api('GET','/feedback/tradeweb?marginal_rate='+rate())}catch(e){
+    $('#fb-body').innerHTML='<tr><td colspan="5" class="empty">Ingest Ai-Price to compute review candidates.</td></tr>';
+    $('#fb-chips').innerHTML='';return;
+  }
+  var s=d.signals,mrc=s.model_review_candidates;
+  var chip=(label,live,prosp)=>`<span class="tag" style="${live?'background:var(--ink);color:var(--paper);border-color:var(--ink)':prosp?'color:var(--accent);border-color:var(--accent)':''}">${label}</span>`;
+  $('#fb-chips').innerHTML=[
+    chip('Freshness · '+s.evaluation_freshness.stale_count+' stale',true,false),
+    chip('Model review · '+mrc.flagged+' flagged',true,false),
+    chip('Demand momentum · '+s.demand_momentum.total_events+' events',true,false),
+    chip('Validation bias · '+s.validation_bias.challenges+' challenges',true,false),
+    chip('Data quality · '+s.data_quality_feedback.status,false,false),
+    chip('Consolidated · '+s.consolidated_metrics.status,false,true),
+  ].join('');
+  if(!mrc.candidates.length){
+    $('#fb-body').innerHTML=`<tr><td colspan="5" class="empty">None flagged · ${mrc.screened} screened, thresholds |z|≥${mrc.thresholds.abs_z}, conf<${mrc.thresholds.min_confidence}.</td></tr>`;return;
+  }
+  $('#fb-body').innerHTML=mrc.candidates.map(c=>`<tr>
+    <td class="num">${c.cusip}</td>
+    <td>${esc(c.description)}</td>
+    <td class="num">${f(c.confidence)}</td>
+    <td class="num">${c.disloc_z>=0?'+':''}${f(c.disloc_z)}</td>
+    <td style="font-size:12px;color:var(--muted)">${c.reasons.map(esc).join('; ')}</td></tr>`).join('');
+}
+
+$('#btn-gps').addEventListener('click',refreshGps);
+$('#btn-bundle').addEventListener('click',refreshBundle);
+
+loadAi();loadPortfolios();loadDw();loadGps();loadBundle();loadFeedback();loadFlywheel();
+</script>
+</body>
+</html>
