@@ -10,8 +10,9 @@ from fastapi.templating import Jinja2Templates
 
 from .config import get_settings
 from .db import init_models
-from .routers import (ai_price, consensus, dealerweb, enrichment, feedback,
-                      flywheel, health, instruments, liquidity, portfolios, pricing)
+from .routers import (ai_price, consensus, dealerweb, enrichment, evals, feedback,
+                      flywheel, health, ingest, instruments, liquidity, portfolios,
+                      pricing)
 
 _TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
@@ -39,6 +40,8 @@ def create_app() -> FastAPI:
     app.include_router(feedback.router)
     app.include_router(flywheel.router)
     app.include_router(consensus.router)
+    app.include_router(evals.router)
+    app.include_router(ingest.router)
 
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     async def dashboard(request: Request) -> HTMLResponse:
@@ -62,6 +65,18 @@ def create_app() -> FastAPI:
     async def ui_identity(request: Request) -> HTMLResponse:
         return _TEMPLATES.TemplateResponse(
             request, "identity.html", {"service": settings.app_name, "active": "identity"}
+        )
+
+    @app.get("/ui/evidence", response_class=HTMLResponse, include_in_schema=False)
+    async def ui_evidence(request: Request) -> HTMLResponse:
+        return _TEMPLATES.TemplateResponse(
+            request, "evidence.html", {"service": settings.app_name, "active": "evidence"}
+        )
+
+    @app.get("/ui/data-model", response_class=HTMLResponse, include_in_schema=False)
+    async def ui_data_model(request: Request) -> HTMLResponse:
+        return _TEMPLATES.TemplateResponse(
+            request, "datamodel.html", {"service": settings.app_name, "active": "datamodel"}
         )
 
     return app

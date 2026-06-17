@@ -438,49 +438,69 @@ dislocation z-score and drift. The same series roll up to a per-sector view.
 
 ## 10. Feedback to Tradeweb (`/feedback/tradeweb`)
 
-The honest representation of the SIX → Tradeweb direction. Five signals are
-computed from data the app holds today; two remain pending. The feed's daily
-price move is curve-driven (Section 2) so the freshness signal below is real and
-recoverable.
+The honest representation of the SIX → Tradeweb direction. The signals are
+returned with a `tier` so the value is graded rather than inflated: not every
+"live" signal is uniquely valuable, and the endpoint says so. The grading rests
+on one question — *does this tell Tradeweb something it does not already know?*
 
-**Live — evaluation freshness (headline).** For each bond, compare the move it
-*should* have made for the day's risk-free curve shift to the move it *did* make:
+**Headline — consensus deviation (the real prize, unique to SIX).** Ai-Price vs
+the median of the marks SIX's bank clients carry for the bond:
+```
+consensus    = median(contributor marks)
+z            = (ai_price - consensus) / dispersion(marks)
+off_market   = |z| >= 1.5
+```
+For the ~98% of munis that do not print there is no trade to anchor to; an
+independent multi-source mark is the single most model-improving thing SIX can
+return, and Tradeweb cannot self-produce it. It is surfaced as a **dollar-ranked
+exception queue** — each name's `|deviation| × client AUM behind it` (notional
+illustrative) — so a model owner gets a prioritised work list, not just a
+z-score. Contributor marks are synthetic; production needs multi-source ingest
+under permission.
+
+**Headline — reference-data corrections (unique, and no privacy cost).** SIX is a
+reference-data house; as clients consume Ai-Price it surfaces corrections about
+the *instrument* — identifier mismatches, stale ratings, wrong sector/issuer
+tags. This is the cleanest thing that flows back: Tradeweb cannot fully
+self-generate it, and because it concerns the bond not the client it carries
+**no client information and needs no privacy boundary**. (Synthetic here; the
+mechanism is real and half-built in the enrichment layer of Section 8.)
+
+**Support — evaluation freshness (QA).** For each bond, compare the move it
+*should* have made for the day's curve shift to the move it *did* make:
 ```
 expected_move = -duration * curve_move(tenor) * price     (SIX risk-free curve)
 beta          = actual_move / expected_move               (1 = tracks, ~0 = stale)
-tracking_gap  = (actual_move - expected_move) / duration * 100   (bp)
 stale         = material curve move AND beta < 0.4 AND trades_30d <= 1
 ```
-The most trader-actionable signal: it flags marks that are *stale* rather than
-merely biased — which evaluations are fresh enough to lift or hit against — and
-SIX is uniquely placed to compute it because the curve reference is its own
-franchise (SARON / Swiss Reference Rates / evaluated USD curve), not Tradeweb's.
+Genuinely useful, but Tradeweb can partly self-detect staleness from its own
+update logs — so it is QA, not unique intelligence.
 
-**Live — model-review candidates.** Confidence band + dislocation z-score of the
-after-tax spread; flag a CUSIP when confidence is low or |z| is large.
+**Support — coverage gaps.** Names clients pull from the usage log scored by
+`pulls × (1 - confidence)`: bonds clients want priced that Ai-Price covers
+thinly. A concrete coverage/product signal and a byproduct of consumption already
+logged; not derivable from consensus.
 
-**Live — demand momentum (refined demand).** Consumption split into earlier vs
-later windows from the usage log; `momentum = late - early` per sector — a leading
-interest indicator rather than a raw count.
+**Commercial — demand momentum.** Consumption split into earlier vs later windows;
+`momentum = late - early` per sector. Real and easy to produce, but it is a
+sales/product signal, not a model input.
 
-**Live — validation bias (refined validation).** Accepted price challenges
-aggregated as a *signed* bias by bucket: `bias_bp = -price_delta / duration * 100`,
-so a positive mean means evals run rich — a directional correction, not a count.
+**Derived — validation bias.** Accepted price challenges aggregated as a *signed*
+bias by bucket (`bias_bp = -price_delta / duration * 100`). Flagged `derived`
+honestly: because challenges settle *at* the consensus, this largely restates the
+consensus signal, and Tradeweb already receives challenges directly through its
+own portal — only SIX's cross-client aggregation is incremental.
 
-**Live — consensus deviation.** Ai-Price vs the median of the marks SIX's bank
-clients carry for the bond:
-```
-consensus      = median(contributor marks)
-z              = (ai_price - consensus) / dispersion(marks)
-off_market     = |z| >= 1.5   (an outlier vs where the book carries it)
-```
-The most direct "is this eval off-market" check, and SIX-unique because the
-consensus needs the multi-source vantage SIX has as distributor. Contributor
-marks here are *synthetic*; production requires multi-source ingest of clients'
-carried marks under the appropriate permissions.
+**Derived — model-review candidates.** Confidence band + dislocation z-score; a
+convenience roll-up that overlaps consensus and freshness rather than a new
+signal.
 
-**Pending:** `data_quality_feedback` (requires multi-source ingest);
-`consolidated_metrics` (prospective; needs multi-venue data + redistribution rights).
+**Pending / prospective:** `data_quality_feedback` (needs multi-source ingest);
+`consolidated_metrics` (needs multi-venue data + redistribution rights).
+
+The net honest tally is **two genuinely unique flows (consensus, reference data)**,
+two useful-but-not-unique (freshness, coverage), one commercial, two derived and
+two prospective — a real proposition stated without inflating the count.
 
 ---
 
@@ -549,6 +569,137 @@ asserted.
 
 ---
 
+## 11A. Evidence — proving the loop closes (`analytics/eval_harness.py`, `lead_time.py`, `reach.py`)
+
+Three artifacts move the case from "cute analytics" to "this works," surfaced on
+the **Evidence** page (`/ui/evidence`). They answer the three questions a Tradeweb
+model owner and a Tradeweb exec actually ask: *does the feedback measurably help,
+is any of it predictive, and what is it worth?*
+
+### 11A.1 Loop-closure eval harness (`/eval/loop-closure`)
+
+A flywheel diagram asserts that feedback improves the model; this **measures** it
+with a hold-out test.
+
+1. For every bond, compute the consensus-tracking error — Ai-Price minus the
+   median of the five bank-client marks — in basis points.
+2. **Sector-stratified hold-out split:** alternate bonds within each sector into a
+   TRAIN set (the challenges SIX has effectively seen) and an EVAL set the model
+   never saw corrected. Stratifying guarantees both sectors appear in each side.
+3. From TRAIN, estimate the **systematic sector bias** — the mean signed deviation
+   per sector. This is the de-identified signal SIX feeds back (it is exactly the
+   `validation_bias` signal of Section 10).
+4. Apply that learned per-sector correction to the **held-out** bonds and
+   re-measure their error.
+
+A drop in held-out error proves the feedback **generalises** — the model learned a
+real bias, not just memorised the challenged names. The harness reports MAE and
+RMSE (bp) before vs after, the per-bond detail, and the improvement percentage. On
+the synthetic universe it recovers a learned REVENUE bias of ≈ +0.24 price points
+and cuts held-out MAE from ≈ 1.9 bp to ≈ 1.5 bp (**≈ +23%**). The improvement is
+deliberately partial, not 100%: a sector-level correction removes the systematic
+component but cannot touch the idiosyncratic per-bond noise — which is the honest
+result, because un-learnable noise *should* survive.
+
+### 11A.2 Consensus lead-time (`/eval/lead-time`)
+
+The corrective value of consensus is "the eval is off today." The **predictive**
+value — the one worth paying for — is "client marks started moving N days before
+the eval did." For each of the most illiquid bonds the endpoint stages a 14-day
+daily path where the consensus leads the eval, then recovers the lag as the
+**argmax of the cross-correlation** between the two paths. It reports `lead_days`
+and the peak correlation per bond.
+
+**This is illustrative and synthetic** — the series are staged so a lead exists;
+the data does not prove a real lead. What transfers to production is the *method*
+(cross-correlation lag between the consensus path and the eval path); pointed at
+real client marks over real time it would either find a lead or not.
+
+### 11A.3 Reach in dollars (`/eval/reach`)
+
+A trader shrugs at "new distribution channel"; an exec does not shrug at an
+addressable-revenue number. A four-stage funnel sizes the opportunity:
+
+`SIX muni clients → total muni AUM → AUM not currently price-touched by Tradeweb →
+annual data revenue at a per-bp data fee`.
+
+With the default assumptions (120 clients × ~$850 mm muni AUM × 60% untouched ×
+0.4 bp) this is ~$61.2 bn addressable AUM and ~$2.4 mm/yr of data revenue. **Every
+input is an illustrative placeholder**; the funnel math is real, the numbers are
+not a forecast. The point is to reframe the relationship as a business case, not a
+demo.
+
+### 11A.4 The model change that makes 11A.1 honest
+
+For a hold-out test to mean anything, the eval's error must contain something
+*learnable*. The consensus mark generator (`clients/contributors.py`) was therefore
+redesigned so the error vs consensus decomposes into:
+
+- a **systematic sector bias** (`_SECTOR_BIAS = {GO: +0.05, REVENUE: +0.22}` price
+  points) — Ai-Price runs systematically rich in revenue bonds, mirroring how real
+  evaluated models carry sector/rating/tenor biases. This is the part feedback can
+  learn and generalise.
+- an **idiosyncratic** part, `illiquidity × U(−0.25, 0.25)` — per-bond noise that
+  scales with illiquidity and that feedback *cannot* generalise away.
+
+Bank disagreement (dispersion) is `0.04 + illiquidity × 0.30`. Because the
+systematic part dominates, it is recoverable from a small TRAIN sample; because the
+idiosyncratic part remains, the improvement is realistic rather than perfect. This
+also tightens the rest of the story: revenue evals now run systematically rich,
+which is simultaneously why they show as **off-market** on the consensus panel and
+why the flywheel **corrects** them.
+
+---
+
+## 11B. Ingest — the three-layer store (`feed_ingest.py`, `routers/ingest.py`)
+
+How SIX actually takes the Tradeweb Ai-Price feed in, stores it, and enriches it
+— surfaced on the **Data model** tab (`/ui/data-model`). One inbound record is
+validated (a Pydantic `AiPriceFeedRecord` matching the real feed shape), then
+split into three layers and joined back into an enriched output.
+
+**Layer 1 — SIX security master** (`security_master`). SIX's golden-copy
+reference data, keyed by a SIX-assigned `six_security_id`: identifiers
+(CUSIP/ISIN/FIGI), issuer, coupon, maturity, currency, ratings, plus the SIX
+adds (issuer hierarchy, regulatory class, corporate-actions reference, a
+data-quality score).
+
+**Layer 2 — Ai-Price valuation** (`ai_price_valuation`). The evaluated-pricing
+feed itself: bid / mid / ask / clean, yield, benchmark curve, spread, confidence
+and liquidity scores, pricing timestamp. Rows accumulate per security, so this
+table *is* the historical time series.
+
+**Layer 3 — explainability / model inputs** (`explainability_input`). The
+governance fields institutions keep for model validation: last trade and date,
+days since trade, 30-day trade count and volume, quote count, curve node, model
+version.
+
+**The eight things SIX adds**, and where each comes from:
+| SIX add | Source |
+| --- | --- |
+| SIX security id | generated, deterministic from CUSIP |
+| Issuer hierarchy | `issuer_parent` (small lookup + heuristic) |
+| Corporate-actions linkage | `corp_action_ref` (synthetic id; ~1 in 4) |
+| Reference-data enrichment | ratings, sector, coupon, maturity from the master |
+| Regulatory classifications | `regulatory_class` (e.g. tax-exempt / MiFID tag) |
+| Currency normalization | native + reporting-currency (CHF) at an illustrative FX |
+| Historical time series | accumulated valuation rows per security |
+| Data-quality indicators | completeness + freshness + model-confidence score, plus a stale flag |
+
+The data-quality score is `1.0` minus penalties for a missing ISIN, missing
+ratings, staleness (days since trade > 30), and low model confidence — so an
+illiquid, rarely-traded name scores lower and is flagged stale, exactly as it
+should be. Currency normalization and the time series are *derived* at read time;
+the other six are stored on the master. The enriched record is the join of all
+three layers plus these adds — the artifact SIX's downstream systems (risk, NAV,
+collateral, IFRS-13 valuation) actually consume.
+
+The feed is synthetic and the FX, FIGI, hierarchy and corporate-action values are
+illustrative; the ingest, validation, three-layer split and enrichment are real
+and match the production shape.
+
+---
+
 ## 12. Constants reference
 
 | Constant | Value | Used in |
@@ -570,8 +721,14 @@ asserted.
 | daily curve move | −3 to −7 bp by tenor | freshness |
 | stale flag | beta < 0.4 and trades_30d ≤ 1 | freshness |
 | consensus contributors | 5 synthetic bank marks | consensus |
+| systematic sector bias | GO +0.05, REVENUE +0.22 price pts | consensus, eval harness |
+| idiosyncratic mark noise | illiquidity × U(−0.25, 0.25) | consensus |
+| consensus dispersion | 0.04 + illiquidity × 0.30 | consensus |
 | off-market flag | |z| ≥ 1.5 vs bank dispersion | consensus |
-| simulate correction | −0.25 price points | flywheel turn |
+| simulate correction | settles at consensus median (basis = consensus) | flywheel turn |
+| loop-closure split | sector-stratified hold-out (alternate) | eval harness |
+| lead-time | 14-day staged path, cross-correlation lag | lead-time (illustrative) |
+| reach assumptions | 120 clients × $850 mm × 60% × 0.4 bp | reach (illustrative) |
 | feedback confidence lift | +0.03 per adjustment | retrain step |
 
 ---
@@ -586,6 +743,17 @@ asserted.
   the "retrain" is a transparent additive price adjustment (`ai_price += Σ Δ`),
   not a real machine-learning model update. The loop *architecture* is real; the
   learning step is a placeholder.
+- **The eval harness is a real measurement on synthetic data.** The hold-out
+  method (learn the systematic sector bias from train, apply to held-out bonds,
+  re-measure) is genuine and would transfer to production unchanged; the contributor
+  marks it learns from are fabricated, so the ≈ +23% is a property of the synthetic
+  bias, not evidence about the real Ai-Price model.
+- **Lead-time is illustrative.** The 14-day paths are staged so the consensus leads
+  the eval; the cross-correlation method is real but the data does not prove a real
+  lead exists.
+- **Reach sizing is illustrative.** The funnel arithmetic is real; every input
+  (client count, AUM, untouched share, fee) is a placeholder assumption, not a
+  forecast.
 - **Spread history is synthetic.** Dislocation/drift run on a generated 90-day
   series; a production version would persist real spread snapshots over time.
 - **SARON anchors CHF, not US munis.** Munis are spread against the USD curve;

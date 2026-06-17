@@ -13,7 +13,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..analytics import consensus_deviation
 from ..clients import TradewebClient
+from ..clients.contributors import contributor_marks
 from ..db import get_session
 from ..deps import get_tradeweb_client
 from ..models import AiPriceQuote, ModelAdjustment, PriceChallenge, UsageEvent
@@ -26,7 +28,13 @@ class ChallengeIn(BaseModel):
     cusip: str = Field(min_length=9, max_length=9)
     challenged_price: float = Field(gt=0)
     client: str = Field(default="unspecified", max_length=40)
+    basis: str = Field(default="unspecified", max_length=20)
     note: str = ""
+
+
+# What a client cites as evidence for the challenge. consensus + trade are the
+# credible, low-information-cost bases; munis lean on the public MSRB tape.
+CHALLENGE_BASES = ["trade", "dealer_quote", "rival_eval", "consensus", "internal_mark"]
 
 
 # Synthetic roster of SIX's bank clients (the same banks whose marks form the
@@ -56,13 +64,14 @@ async def submit_challenge(
     ch = PriceChallenge(
         cusip=payload.cusip, observed_price=float(rec.ai_price),
         challenged_price=payload.challenged_price, note=payload.note[:240],
-        client=(payload.client or "unspecified")[:40], status="pending",
+        client=(payload.client or "unspecified")[:40],
+        basis=(payload.basis or "unspecified")[:20], status="pending",
     )
     session.add(ch)
     session.add(UsageEvent(cusip=payload.cusip, kind="challenge"))
     await session.commit()
     await session.refresh(ch)
-    return {"id": ch.id, "cusip": ch.cusip, "client": ch.client,
+    return {"id": ch.id, "cusip": ch.cusip, "client": ch.client, "basis": ch.basis,
             "observed_price": float(ch.observed_price),
             "challenged_price": float(ch.challenged_price), "status": ch.status}
 
@@ -73,7 +82,7 @@ async def list_challenges(session: AsyncSession = Depends(get_session)) -> list[
         select(PriceChallenge).order_by(PriceChallenge.created_at.desc())
     )).all())
     return [{
-        "id": c.id, "cusip": c.cusip, "client": c.client,
+        "id": c.id, "cusip": c.cusip, "client": c.client, "basis": c.basis,
         "observed_price": float(c.observed_price),
         "challenged_price": float(c.challenged_price), "status": c.status,
         "settled_price": (float(c.settled_price) if c.settled_price is not None else None),
@@ -144,10 +153,14 @@ async def simulate_turn(
     observed = float(target.ai_price)
     prior_turns = await session.scalar(select(func.count(ModelAdjustment.id))) or 0
     client = SIX_CLIENTS[prior_turns % len(SIX_CLIENTS)]
-    # client argues the evaluated mid is rich by ~25 cents
-    settled = round(observed - 0.25, 4)
-    ch = PriceChallenge(cusip=target.cusip, client=client, observed_price=observed,
-                        challenged_price=settled, note="auto-simulated turn",
+    # the client cites the consensus: SIX's bank clients carry it away from the eval,
+    # so they argue the mark toward where the Street actually has it.
+    marks = contributor_marks(target.cusip, observed, target.sector.value, float(target.liquidity_score), target.as_of)
+    cd = consensus_deviation(target, marks)
+    settled = cd.consensus
+    note = f"consensus of {cd.n_contributors} bank marks (z={cd.z:+.2f})"
+    ch = PriceChallenge(cusip=target.cusip, client=client, basis="consensus",
+                        observed_price=observed, challenged_price=settled, note=note,
                         status="accepted", settled_price=settled,
                         resolved_at=dt.datetime.now(dt.timezone.utc))
     session.add(ch)
@@ -161,7 +174,8 @@ async def simulate_turn(
     new = next((r for r in await _latest_rows(session) if r.cusip == target.cusip), None)
     turns = await session.scalar(select(func.count(ModelAdjustment.id))) or 0
     return {
-        "challenged_cusip": target.cusip, "client": client, "observed_price": observed,
+        "challenged_cusip": target.cusip, "client": client, "basis": "consensus",
+        "observed_price": observed, "consensus": settled, "consensus_z": cd.z,
         "settled_price": settled, "price_after_retrain": (float(new.ai_price) if new else None),
         "new_model_version": result.model_version, "loop_turns": turns,
     }

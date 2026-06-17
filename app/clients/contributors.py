@@ -1,15 +1,18 @@
 """Synthetic multi-source contributor marks.
 
 SIX sits between Tradeweb and many bank clients, so it can see where those banks
-*carry* a bond on their own books and blend them into a consensus. Comparing the
-Ai-Price evaluation to that consensus is a strong, trader-relevant model-quality
-signal that Tradeweb cannot self-produce -- it needs the multi-source vantage.
+*carry* a bond and blend them into a consensus. Comparing Ai-Price to that
+consensus is a model-quality signal Tradeweb cannot self-produce.
 
-This module fabricates contributor marks deterministically so the method can be
-demonstrated. In production these would be real client-carried marks ingested
-under the appropriate permissions -- the multi-source ingest kept pending
-elsewhere. Banks disagree more on illiquid bonds, and the evaluation can sit
-off the consensus, more so when the bond is illiquid.
+The eval's error vs the consensus has two parts, mirroring how real evaluated
+models behave:
+  - a SYSTEMATIC sector bias (e.g. the model runs rich in revenue bonds) -- this
+    is the learnable part that aggregated feedback can correct and generalise;
+  - an IDIOSYNCRATIC per-bond part that scales with illiquidity -- noise that
+    feedback cannot generalise away.
+
+Marks are fabricated deterministically so the method can be demonstrated; in
+production these are real client-carried marks under the appropriate permissions.
 """
 from __future__ import annotations
 
@@ -19,6 +22,11 @@ import random
 from dataclasses import dataclass
 
 _CONTRIBUTORS = ["Bank A", "Bank B", "Bank C", "Bank D", "Bank E"]
+
+# Systematic richness of Ai-Price vs where the Street carries it, by sector
+# (price points). Positive = eval marks higher (richer) than consensus. This is
+# the learnable part; it dominates so aggregated feedback can recover it.
+_SECTOR_BIAS = {"GO": 0.05, "REVENUE": 0.22}
 
 
 @dataclass(slots=True)
@@ -32,12 +40,17 @@ def _rng(cusip: str, day: str) -> random.Random:
     return random.Random(seed)
 
 
-def contributor_marks(cusip: str, ai_price: float, liquidity_score: float,
-                      as_of: dt.datetime) -> list[ContributorMark]:
+def systematic_bias(sector: str) -> float:
+    return _SECTOR_BIAS.get(sector, 0.05)
+
+
+def contributor_marks(cusip: str, ai_price: float, sector: str,
+                      liquidity_score: float, as_of: dt.datetime) -> list[ContributorMark]:
     r = _rng(cusip, as_of.date().isoformat())
     illiquidity = max(0.0, (100.0 - liquidity_score) / 100.0)   # 0 (liquid) .. ~0.6
-    dispersion = 0.05 + illiquidity * 0.45                       # bank disagreement (price pts)
-    bias = illiquidity * r.uniform(-1.2, 1.2)                    # eval may sit off the book
+    dispersion = 0.04 + illiquidity * 0.30                       # bank disagreement (price pts)
+    idiosyncratic = illiquidity * r.uniform(-0.25, 0.25)        # un-learnable noise
+    bias = systematic_bias(sector) + idiosyncratic              # eval sits this far off the book
     consensus_true = float(ai_price) - bias
     return [ContributorMark(name, round(consensus_true + r.gauss(0, dispersion), 4))
             for name in _CONTRIBUTORS]

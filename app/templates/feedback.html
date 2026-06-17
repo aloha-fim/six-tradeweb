@@ -55,13 +55,31 @@ input[type=number]{width:90px}
 .note b{color:var(--ink)}
 .foot{padding:20px 0 30px;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
 .neg{color:var(--accent)}.posn{color:var(--pos)}
-</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Model quality<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="">Flywheel</a><a href="/ui/feedback" class="on">Model quality</a><a href="/ui/identity" class="">Identity</a></nav>
+</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Model quality<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="">Flywheel</a><a href="/ui/feedback" class="on">Model quality</a><a href="/ui/identity" class="">Identity</a><a href="/ui/evidence" class="">Evidence</a><a href="/ui/data-model" class="">Data model</a></nav>
 <section>
   <div class="sh"><span class="eb">SIX &#8594; Tradeweb</span><h2>Model-quality feedback</h2><span class="src">/feedback/tradeweb</span></div>
+  <p class="note" id="fb-boundary"></p>
   <div class="chips" id="fb-chips"></div>
 </section>
 <section>
-  <div class="sh"><span class="eb">Headline</span><h2>Evaluation freshness</h2><span class="src">curve-tracking responsiveness</span></div>
+  <div class="sh"><span class="eb">Headline &#183; unique to SIX</span><h2>Consensus exception queue</h2><span class="src">divergence &#215; $ behind the name</span></div>
+  <p class="note" id="cn-why"></p>
+  <div class="cards" id="cn-cards"></div>
+  <h3 class="sub">Ranked by dollar impact (mark-to-consensus gap &#215; client notional)</h3>
+  <div class="scroll"><table><thead><tr><th>CUSIP</th><th>Description</th><th class="num">Dev bp</th><th class="num">z</th><th>Off-market</th><th class="num">Client $mm</th><th class="num">$ impact (k)</th></tr></thead><tbody id="cn-queue"></tbody></table></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Headline &#183; instrument-level, no boundary</span><h2>Reference-data corrections</h2><span class="src">identity / rating / tag fixes</span></div>
+  <p class="note">SIX is a reference-data house. As clients consume Ai-Price, SIX surfaces corrections about the <b>bond</b> &#8212; identifier mismatches, stale ratings, wrong sector/issuer tags. This carries no client information at all, so it needs no privacy boundary, and Tradeweb cannot fully self-generate it.</p>
+  <div class="cards" id="rd-cards"></div>
+  <h3 class="sub">By type</h3>
+  <table><thead><tr><th>Correction</th><th class="num">Count</th></tr></thead><tbody id="rd-type"></tbody></table>
+  <h3 class="sub">Examples</h3>
+  <div class="scroll"><table><thead><tr><th>CUSIP</th><th>Description</th><th>Correction</th></tr></thead><tbody id="rd-items"></tbody></table></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Support &#183; QA</span><h2>Evaluation freshness</h2><span class="src">curve-tracking responsiveness</span></div>
+  <p class="note" id="fr-caveat"></p>
   <div class="cards" id="fr-cards"></div>
   <h3 class="sub">By sector</h3>
   <table><thead><tr><th>Sector</th><th class="num">Mean &#946;</th><th class="num">Stale</th></tr></thead><tbody id="fr-sec"></tbody></table>
@@ -69,41 +87,62 @@ input[type=number]{width:90px}
   <div class="scroll"><table><thead><tr><th>CUSIP</th><th>Description</th><th class="num">Trades 30d</th><th class="num">Expected</th><th class="num">Actual</th><th class="num">&#946;</th><th class="num">Gap bp</th><th>Stale</th></tr></thead><tbody id="fr-worst"></tbody></table></div>
 </section>
 <section>
-  <div class="sh"><span class="eb">Headline</span><h2>Consensus deviation</h2><span class="src">Ai-Price vs bank-client marks</span></div>
-  <div class="cards" id="cn-cards"></div>
-  <div class="scroll"><table><thead><tr><th>CUSIP</th><th>Description</th><th class="num">Ai-Price</th><th class="num">Consensus</th><th class="num">Disp</th><th class="num">Dev px</th><th class="num">Dev bp</th><th class="num">z</th><th>Off-market</th></tr></thead><tbody id="cn-body"></tbody></table></div>
+  <div class="sh"><span class="eb">Support</span><h2>Coverage gaps</h2><span class="src">pulled, but thinly covered</span></div>
+  <p class="note">Names SIX's clients pull from the usage log, scored by demand &#215; (1&#8722;confidence) &#8212; bonds clients want priced that Ai-Price covers thinly. A concrete coverage/product signal, and a byproduct of consumption already logged.</p>
+  <table><thead><tr><th>CUSIP</th><th>Description</th><th class="num">Pulls</th><th class="num">Confidence</th><th class="num">Under-coverage</th></tr></thead><tbody id="cg-body"></tbody></table>
 </section>
 <section>
-  <div class="sh"><span class="eb">Live</span><h2>Model-review candidates</h2><span class="src">confidence + dislocation z</span></div>
-  <div class="scroll"><table><thead><tr><th>CUSIP</th><th>Description</th><th class="num">Confidence</th><th class="num">Disloc z</th><th>Why flagged</th></tr></thead><tbody id="mr-body"></tbody></table></div>
-</section>
-<section>
-  <div class="sh"><span class="eb">Live</span><h2>Demand momentum</h2><span class="src">rising vs prior consumption</span></div>
+  <div class="sh"><span class="eb">Commercial &#183; sales signal</span><h2>Demand momentum</h2><span class="src">rising vs prior consumption</span></div>
   <table><thead><tr><th>Sector</th><th class="num">Early</th><th class="num">Late</th><th class="num">Momentum</th><th>Direction</th></tr></thead><tbody id="dm-body"></tbody></table>
 </section>
 <section>
-  <div class="sh"><span class="eb">Live</span><h2>Validation bias</h2><span class="src">signed correction by bucket</span></div>
+  <div class="sh"><span class="eb">Derived &#183; overlaps consensus</span><h2>Validation bias</h2><span class="src">signed correction by bucket</span></div>
+  <p class="note" id="vb-caveat"></p>
   <table><thead><tr><th>Sector</th><th class="num">Mean bias bp</th><th class="num">n</th><th>Reads</th></tr></thead><tbody id="vb-body"></tbody></table>
 </section>
 <section>
-  <div class="sh"><span class="eb">Pending</span><h2>Not yet computable</h2></div>
+  <div class="sh"><span class="eb">Derived</span><h2>Model-review candidates</h2><span class="src">a roll-up of consensus + freshness</span></div>
+  <div class="scroll"><table><thead><tr><th>CUSIP</th><th>Description</th><th class="num">Confidence</th><th class="num">Disloc z</th><th>Why flagged</th></tr></thead><tbody id="mr-body"></tbody></table></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Pending / prospective</span><h2>Not yet computable</h2></div>
   <div class="cards" id="pend-cards"></div>
 </section>
 <script>
 const api=(m,u)=>fetch(u,{method:m}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();});
 const $=s=>document.querySelector(s);const f=(n,d=2)=>Number(n).toFixed(d);const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const fmt=n=>Number(n).toLocaleString('en-US');
 async function load(){
-  let s;try{s=(await api('GET','/feedback/tradeweb')).signals;}catch(e){$('#fb-chips').innerHTML='<span class="chip pend">ingest Ai-Price first</span>';return;}
-  const fr=s.evaluation_freshness,cn=s.consensus_deviation,mr=s.model_review_candidates,dm=s.demand_momentum,vb=s.validation_bias;
-  $('#fb-chips').innerHTML=[`<span class="chip star">&#9733; FRESHNESS &#183; ${fr.stale_count} stale</span>`,`<span class="chip star">&#9733; CONSENSUS &#183; ${cn.off_market} off-market</span>`,`<span class="chip live">MODEL REVIEW &#183; ${mr.flagged} flagged</span>`,`<span class="chip live">DEMAND MOMENTUM &#183; ${dm.total_events} events</span>`,`<span class="chip live">VALIDATION BIAS &#183; ${vb.challenges} challenges</span>`,`<span class="chip pend">DATA QUALITY &#183; pending</span>`,`<span class="chip prosp">CONSOLIDATED &#183; prospective</span>`].join('');
+  let d;try{d=await api('GET','/feedback/tradeweb');}catch(e){$('#fb-chips').innerHTML='<span class="chip pend">ingest Ai-Price first</span>';return;}
+  const s=d.signals;
+  if(d.boundary)$('#fb-boundary').innerHTML='<b>Privacy boundary.</b> '+esc(d.boundary);
+  const cn=s.consensus_deviation,rd=s.reference_data_corrections,fr=s.evaluation_freshness,cg=s.coverage_gaps,dm=s.demand_momentum,vb=s.validation_bias,mr=s.model_review_candidates;
+  $('#fb-chips').innerHTML=[
+    `<span class="chip star">&#9733; CONSENSUS &#183; ${cn.off_market} off-market</span>`,
+    `<span class="chip star">&#9733; REFERENCE DATA &#183; ${rd.flagged} fixes</span>`,
+    `<span class="chip">FRESHNESS &#183; ${fr.stale_count} stale</span>`,
+    `<span class="chip">COVERAGE GAPS &#183; ${cg.flagged}</span>`,
+    `<span class="chip">DEMAND &#183; ${dm.total_events} events</span>`,
+    `<span class="chip pend">VALIDATION BIAS &#183; derived</span>`,
+    `<span class="chip pend">MODEL REVIEW &#183; derived</span>`,
+    `<span class="chip pend">DATA QUALITY &#183; pending</span>`,
+    `<span class="chip prosp">CONSOLIDATED &#183; prospective</span>`,
+  ].join('');
+  if(cn.why_unique)$('#cn-why').innerHTML='<b>Why this is the real prize.</b> '+esc(cn.why_unique)+'.';
+  $('#cn-cards').innerHTML=[['Screened',cn.screened],['Off-market',cn.off_market]].map(x=>`<div class="card"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
+  $('#cn-queue').innerHTML=cn.exception_queue.map(q=>`<tr><td class="num">${q.cusip}</td><td>${esc(q.description)}</td><td class="num">${q.deviation_bp>=0?'+':''}${f(q.deviation_bp,1)}</td><td class="num">${q.z>=0?'+':''}${f(q.z)}</td><td>${q.off_market?'<span class="neg">OFF-MARKET</span>':'&#8212;'}</td><td class="num">${q.client_notional_mm}</td><td class="num">${fmt(q.dollar_impact_k)}</td></tr>`).join('');
+  $('#rd-cards').innerHTML=[['Screened',rd.screened],['Corrections',rd.flagged]].map(x=>`<div class="card"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
+  $('#rd-type').innerHTML=rd.by_type.length?rd.by_type.map(t=>`<tr><td>${esc(t.type)}</td><td class="num">${t.count}</td></tr>`).join(''):'<tr><td colspan="2" class="empty">None.</td></tr>';
+  $('#rd-items').innerHTML=rd.items.map(i=>`<tr><td class="num">${i.cusip}</td><td>${esc(i.description)}</td><td>${esc(i.correction)}</td></tr>`).join('');
+  if(fr.caveat)$('#fr-caveat').innerHTML='<b>Caveat.</b> '+esc(fr.caveat)+'.';
   $('#fr-cards').innerHTML=[['Screened',fr.screened],['Stale',fr.stale_count]].map(x=>`<div class="card"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
   $('#fr-sec').innerHTML=fr.by_sector.map(x=>`<tr><td>${x.sector}</td><td class="num">${f(x.mean_beta)}</td><td class="num">${x.stale}</td></tr>`).join('');
   $('#fr-worst').innerHTML=fr.worst_trackers.map(w=>`<tr><td class="num">${w.cusip}</td><td>${esc(w.description)}</td><td class="num">${w.trades_30d}</td><td class="num">${f(w.expected_move,3)}</td><td class="num">${f(w.actual_move,3)}</td><td class="num">${f(w.beta)}</td><td class="num">${f(w.tracking_gap_bp,1)}</td><td>${w.stale?'<span class="neg">STALE</span>':'&#8212;'}</td></tr>`).join('');
-  $('#cn-cards').innerHTML=[['Screened',cn.screened],['Off-market',cn.off_market]].map(x=>`<div class="card"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
-  let cons;try{cons=await api('GET','/consensus');$('#cn-body').innerHTML=cons.records.map(r=>`<tr><td class="num">${r.cusip}</td><td>${esc(r.description)}</td><td class="num">${f(r.ai_price)}</td><td class="num">${f(r.consensus)}</td><td class="num">${f(r.dispersion,3)}</td><td class="num">${f(r.deviation_price,3)}</td><td class="num">${f(r.deviation_bp,1)}</td><td class="num">${r.z>=0?'+':''}${f(r.z)}</td><td>${r.off_market?'<span class="neg">OFF-MARKET</span>':'&#8212;'}</td></tr>`).join('');}catch(e){}
-  $('#mr-body').innerHTML=mr.candidates.length?mr.candidates.map(c=>`<tr><td class="num">${c.cusip}</td><td>${esc(c.description)}</td><td class="num">${f(c.confidence)}</td><td class="num">${c.disloc_z>=0?'+':''}${f(c.disloc_z)}</td><td style="color:var(--muted)">${c.reasons.map(esc).join('; ')}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">None flagged.</td></tr>';
+  $('#cg-body').innerHTML=cg.gaps.length?cg.gaps.map(g=>`<tr><td class="num">${g.cusip}</td><td>${esc(g.description)}</td><td class="num">${g.pulls}</td><td class="num">${f(g.confidence)}</td><td class="num">${f(g.under_coverage)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No gaps yet &#8212; consume some bonds.</td></tr>';
   $('#dm-body').innerHTML=dm.by_sector.map(x=>`<tr><td>${x.sector}</td><td class="num">${x.early}</td><td class="num">${x.late}</td><td class="num">${x.momentum>=0?'+':''}${x.momentum}</td><td>${x.direction}</td></tr>`).join('');
+  if(vb.caveat)$('#vb-caveat').innerHTML='<b>Caveat.</b> '+esc(vb.caveat)+'.';
   $('#vb-body').innerHTML=vb.by_sector.length?vb.by_sector.map(x=>`<tr><td>${x.sector}</td><td class="num ${x.mean_bias_bp>=0?'neg':'posn'}">${x.mean_bias_bp>=0?'+':''}${f(x.mean_bias_bp,1)}</td><td class="num">${x.n}</td><td>${x.reads}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">No accepted challenges yet.</td></tr>';
+  $('#mr-body').innerHTML=mr.candidates.length?mr.candidates.map(c=>`<tr><td class="num">${c.cusip}</td><td>${esc(c.description)}</td><td class="num">${f(c.confidence)}</td><td class="num">${c.disloc_z>=0?'+':''}${f(c.disloc_z)}</td><td style="color:var(--muted)">${c.reasons.map(esc).join('; ')}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">None flagged.</td></tr>';
   $('#pend-cards').innerHTML=[['Data quality',s.data_quality_feedback.method],['Consolidated',s.consolidated_metrics.method]].map(x=>`<div class="card" style="min-width:260px"><div class="k">${x[0]}</div><div style="font-size:12px;color:var(--muted);margin-top:6px;white-space:normal">${esc(x[1])}</div></div>`).join('');
 }
 load();

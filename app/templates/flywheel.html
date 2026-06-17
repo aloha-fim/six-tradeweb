@@ -55,7 +55,7 @@ input[type=number]{width:90px}
 .note b{color:var(--ink)}
 .foot{padding:20px 0 30px;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
 .neg{color:var(--accent)}.posn{color:var(--pos)}
-</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Flywheel<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="on">Flywheel</a><a href="/ui/feedback" class="">Model quality</a><a href="/ui/identity" class="">Identity</a></nav>
+</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Flywheel<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="on">Flywheel</a><a href="/ui/feedback" class="">Model quality</a><a href="/ui/identity" class="">Identity</a><a href="/ui/evidence" class="">Evidence</a><a href="/ui/data-model" class="">Data model</a></nav>
 <section>
   <div class="sh"><span class="eb">Closed loop</span><h2>Flywheel</h2><span class="src">model &#183; <b class="tw" id="ver">&#8212;</b></span></div>
   <div class="cards" id="fw-cards"></div>
@@ -67,13 +67,14 @@ input[type=number]{width:90px}
   <div class="controls">
     <label>CUSIP</label><select id="ch-cusip"></select>
     <label>Client</label><select id="ch-client"><option>Cantonal Bank</option><option>Private Bank</option><option>Asset Manager</option><option>Universal Bank</option><option>Insurance GA</option></select>
+    <label>Basis</label><select id="ch-basis"><option value="consensus">Consensus of marks</option><option value="trade">Trade / tape print</option><option value="dealer_quote">Dealer quote</option><option value="rival_eval">Other vendor eval</option><option value="internal_mark">Internal mark</option></select>
     <label>Challenged price</label><input type="number" id="ch-price" step="0.01" placeholder="e.g. 99.50"/>
     <button class="btn ghost" id="btn-ch">Submit challenge</button>
     <span class="eb" id="ch-msg"></span>
   </div>
   <div class="scroll"><table>
-    <thead><tr><th>ID</th><th>CUSIP</th><th>Client</th><th class="num">Observed</th><th class="num">Challenged</th><th>Status</th><th class="num">Settled</th><th>Adjudicate</th></tr></thead>
-    <tbody id="ch-body"><tr><td colspan="8" class="empty">No challenges yet.</td></tr></tbody>
+    <thead><tr><th>ID</th><th>CUSIP</th><th>Client</th><th>Basis</th><th class="num">Observed</th><th class="num">Challenged</th><th>Status</th><th class="num">Settled</th><th>Adjudicate</th></tr></thead>
+    <tbody id="ch-body"><tr><td colspan="9" class="empty">No challenges yet.</td></tr></tbody>
   </table></div>
 </section>
 <script>
@@ -83,11 +84,13 @@ function badge(s){const c=s==='accepted'?'var(--pos)':s==='rejected'?'var(--acce
 async function loadFw(){const d=await api('GET','/flywheel');$('#ver').textContent=d.model_version;const c=d.counters;
   $('#fw-cards').innerHTML=[['Priced',c.priced],['Consumed',c.consumed],['Challenged',c.challenged],['Accepted',c.accepted],['Adjustments',c.adjustments]].map(x=>`<div class="card"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
   $('#fw-stages').innerHTML=d.stages.map((s,i)=>`<div class="tile"><div class="k">${i+1} &#183; ${s.stage}</div><div class="v">${s.metric}<small> ${s.unit}</small></div></div>`).join('');}
+const BASIS={consensus:'Consensus',trade:'Trade',dealer_quote:'Dealer quote',rival_eval:'Other vendor',internal_mark:'Internal mark',unspecified:'&#8212;'};
+const basisLabel=b=>BASIS[b]||b;
 async function loadCh(){const r=await api('GET','/challenges');const b=$('#ch-body');
-  if(!r.length){b.innerHTML='<tr><td colspan="8" class="empty">No challenges yet.</td></tr>';return;}
-  b.innerHTML=r.map(c=>`<tr><td class="num">${c.id}</td><td class="num">${c.cusip}</td><td>${c.client||'&#8212;'}</td><td class="num">${c.observed_price.toFixed(3)}</td><td class="num">${c.challenged_price.toFixed(3)}</td><td>${badge(c.status)}</td><td class="num">${c.settled_price!=null?c.settled_price.toFixed(3):'&#8212;'}</td><td>${c.status==='pending'?`<button class="btn ghost xs" onclick="resolveCh(${c.id},'accept')">accept</button> <button class="btn ghost xs" onclick="resolveCh(${c.id},'reject')">reject</button>`:'&#8212;'}</td></tr>`).join('');}
-async function turn(){const b=$('#btn-turn');b.disabled=true;try{const r=await api('POST','/flywheel/simulate');$('#fw-last').textContent=`last turn &#183; ${r.client} challenged ${r.challenged_cusip}: ${r.observed_price.toFixed(3)} &#8594; ${r.price_after_retrain.toFixed(3)} &#183; ${r.new_model_version}`;await loadFw();await loadCh();}catch(e){$('#fw-last').textContent='ingest Ai-Price first';}finally{b.disabled=false;}}
-async function submitCh(){const cusip=$('#ch-cusip').value,client=$('#ch-client').value,price=parseFloat($('#ch-price').value),m=$('#ch-msg');if(!price){m.textContent='enter a price';return;}try{await api('POST','/challenges',{cusip,client,challenged_price:price});m.textContent='submitted';await loadCh();}catch(e){m.textContent='error '+e.message;}}
+  if(!r.length){b.innerHTML='<tr><td colspan="9" class="empty">No challenges yet.</td></tr>';return;}
+  b.innerHTML=r.map(c=>`<tr><td class="num">${c.id}</td><td class="num">${c.cusip}</td><td>${c.client||'&#8212;'}</td><td>${basisLabel(c.basis)}</td><td class="num">${c.observed_price.toFixed(3)}</td><td class="num">${c.challenged_price.toFixed(3)}</td><td>${badge(c.status)}</td><td class="num">${c.settled_price!=null?c.settled_price.toFixed(3):'&#8212;'}</td><td>${c.status==='pending'?`<button class="btn ghost xs" onclick="resolveCh(${c.id},'accept')">accept</button> <button class="btn ghost xs" onclick="resolveCh(${c.id},'reject')">reject</button>`:'&#8212;'}</td></tr>`).join('');}
+async function turn(){const b=$('#btn-turn');b.disabled=true;try{const r=await api('POST','/flywheel/simulate');$('#fw-last').textContent=`last turn &#183; ${r.client} challenged ${r.challenged_cusip} on consensus (z=${r.consensus_z>=0?'+':''}${r.consensus_z}): ${r.observed_price.toFixed(3)} &#8594; ${r.price_after_retrain.toFixed(3)} &#183; ${r.new_model_version}`;await loadFw();await loadCh();}catch(e){$('#fw-last').textContent='ingest Ai-Price first';}finally{b.disabled=false;}}
+async function submitCh(){const cusip=$('#ch-cusip').value,client=$('#ch-client').value,basis=$('#ch-basis').value,price=parseFloat($('#ch-price').value),m=$('#ch-msg');if(!price){m.textContent='enter a price';return;}try{await api('POST','/challenges',{cusip,client,basis,challenged_price:price});m.textContent='submitted';await loadCh();}catch(e){m.textContent='error '+e.message;}}
 window.resolveCh=async(id,action)=>{await api('POST',`/challenges/${id}/resolve`,{action});await loadFw();await loadCh();};
 async function loadCusips(){try{const r=await api('GET','/ai-price/latest');$('#ch-cusip').innerHTML=r.map(x=>`<option value="${x.cusip}">${x.cusip} &#183; ${x.description}</option>`).join('');}catch(e){}}
 $('#btn-turn').addEventListener('click',turn);$('#btn-ch').addEventListener('click',submitCh);

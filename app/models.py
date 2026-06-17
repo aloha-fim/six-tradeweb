@@ -216,6 +216,9 @@ class PriceChallenge(Base):
     client: Mapped[str] = mapped_column(
         String(40), default="unspecified", server_default="unspecified", index=True
     )  # which SIX bank client raised the challenge
+    basis: Mapped[str] = mapped_column(
+        String(20), default="unspecified", server_default="unspecified"
+    )  # evidence cited: trade / dealer_quote / rival_eval / consensus / internal_mark
     observed_price: Mapped[float] = mapped_column(Numeric(12, 4))   # price the client saw
     challenged_price: Mapped[float] = mapped_column(Numeric(12, 4)) # what they argue
     note: Mapped[str] = mapped_column(String(240), default="")
@@ -241,3 +244,74 @@ class ModelAdjustment(Base):
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+
+# ---------------------------------------------------------------------------
+# Three-layer ingest of Tradeweb Ai-Price as SIX distributes it
+# (security master / valuation / explainability). Matches the real feed record.
+# ---------------------------------------------------------------------------
+
+class SecurityMaster(Base):
+    """SIX golden-copy reference data, keyed by SIX's own security id."""
+
+    __tablename__ = "security_master"
+
+    six_security_id: Mapped[str] = mapped_column(String(20), primary_key=True)
+    cusip: Mapped[str] = mapped_column(String(12), unique=True, index=True)
+    isin: Mapped[str | None] = mapped_column(String(12), nullable=True)
+    figi: Mapped[str | None] = mapped_column(String(12), nullable=True)
+    issuer: Mapped[str] = mapped_column(String(120))
+    issuer_parent: Mapped[str | None] = mapped_column(String(120), nullable=True)  # hierarchy
+    asset_class: Mapped[str] = mapped_column(String(40), default="Municipal Bond")
+    coupon: Mapped[float] = mapped_column(Numeric(6, 3))
+    maturity_date: Mapped[dt.date] = mapped_column(Date)
+    currency: Mapped[str] = mapped_column(String(3), default="USD")
+    rating_moodys: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    rating_sp: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    regulatory_class: Mapped[str | None] = mapped_column(String(90), nullable=True)
+    corp_action_ref: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    data_quality_score: Mapped[float] = mapped_column(Numeric(4, 3), default=1.0)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class AiPriceValuation(Base):
+    """The Tradeweb Ai-Price evaluated-pricing feed, as stored by SIX."""
+
+    __tablename__ = "ai_price_valuation"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    six_security_id: Mapped[str] = mapped_column(String(20), ForeignKey("security_master.six_security_id"), index=True)
+    cusip: Mapped[str] = mapped_column(String(12), index=True)
+    valuation_date: Mapped[dt.date] = mapped_column(Date, index=True)
+    source: Mapped[str] = mapped_column(String(60), default="Tradeweb Municipal Ai-Price")
+    bid_price: Mapped[float] = mapped_column(Numeric(12, 4))
+    mid_price: Mapped[float] = mapped_column(Numeric(12, 4))
+    ask_price: Mapped[float] = mapped_column(Numeric(12, 4))
+    clean_price: Mapped[float] = mapped_column(Numeric(12, 4))
+    yield_pct: Mapped[float] = mapped_column(Numeric(8, 4))
+    benchmark_curve: Mapped[str] = mapped_column(String(40))
+    spread_bp: Mapped[float] = mapped_column(Numeric(8, 2))
+    confidence_score: Mapped[float] = mapped_column(Numeric(5, 3))
+    liquidity_score: Mapped[float] = mapped_column(Numeric(5, 3))
+    pricing_timestamp: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+    ingested_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ExplainabilityInput(Base):
+    """Model-input / governance fields stored for valuation validation."""
+
+    __tablename__ = "explainability_input"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    valuation_id: Mapped[int] = mapped_column(Integer, ForeignKey("ai_price_valuation.id"), index=True)
+    cusip: Mapped[str] = mapped_column(String(12), index=True)
+    last_trade_price: Mapped[float | None] = mapped_column(Numeric(12, 4), nullable=True)
+    last_trade_date: Mapped[dt.date | None] = mapped_column(Date, nullable=True)
+    days_since_trade: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    trade_count_30d: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    volume_30d: Mapped[float | None] = mapped_column(Numeric(16, 2), nullable=True)
+    quote_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    benchmark_spread: Mapped[float | None] = mapped_column(Numeric(8, 2), nullable=True)
+    curve_node: Mapped[str | None] = mapped_column(String(12), nullable=True)
+    model_version: Mapped[str | None] = mapped_column(String(40), nullable=True)

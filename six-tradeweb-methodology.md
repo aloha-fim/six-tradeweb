@@ -651,6 +651,55 @@ why the flywheel **corrects** them.
 
 ---
 
+## 11B. Ingest — the three-layer store (`feed_ingest.py`, `routers/ingest.py`)
+
+How SIX actually takes the Tradeweb Ai-Price feed in, stores it, and enriches it
+— surfaced on the **Data model** tab (`/ui/data-model`). One inbound record is
+validated (a Pydantic `AiPriceFeedRecord` matching the real feed shape), then
+split into three layers and joined back into an enriched output.
+
+**Layer 1 — SIX security master** (`security_master`). SIX's golden-copy
+reference data, keyed by a SIX-assigned `six_security_id`: identifiers
+(CUSIP/ISIN/FIGI), issuer, coupon, maturity, currency, ratings, plus the SIX
+adds (issuer hierarchy, regulatory class, corporate-actions reference, a
+data-quality score).
+
+**Layer 2 — Ai-Price valuation** (`ai_price_valuation`). The evaluated-pricing
+feed itself: bid / mid / ask / clean, yield, benchmark curve, spread, confidence
+and liquidity scores, pricing timestamp. Rows accumulate per security, so this
+table *is* the historical time series.
+
+**Layer 3 — explainability / model inputs** (`explainability_input`). The
+governance fields institutions keep for model validation: last trade and date,
+days since trade, 30-day trade count and volume, quote count, curve node, model
+version.
+
+**The eight things SIX adds**, and where each comes from:
+| SIX add | Source |
+| --- | --- |
+| SIX security id | generated, deterministic from CUSIP |
+| Issuer hierarchy | `issuer_parent` (small lookup + heuristic) |
+| Corporate-actions linkage | `corp_action_ref` (synthetic id; ~1 in 4) |
+| Reference-data enrichment | ratings, sector, coupon, maturity from the master |
+| Regulatory classifications | `regulatory_class` (e.g. tax-exempt / MiFID tag) |
+| Currency normalization | native + reporting-currency (CHF) at an illustrative FX |
+| Historical time series | accumulated valuation rows per security |
+| Data-quality indicators | completeness + freshness + model-confidence score, plus a stale flag |
+
+The data-quality score is `1.0` minus penalties for a missing ISIN, missing
+ratings, staleness (days since trade > 30), and low model confidence — so an
+illiquid, rarely-traded name scores lower and is flagged stale, exactly as it
+should be. Currency normalization and the time series are *derived* at read time;
+the other six are stored on the master. The enriched record is the join of all
+three layers plus these adds — the artifact SIX's downstream systems (risk, NAV,
+collateral, IFRS-13 valuation) actually consume.
+
+The feed is synthetic and the FX, FIGI, hierarchy and corporate-action values are
+illustrative; the ingest, validation, three-layer split and enrichment are real
+and match the production shape.
+
+---
+
 ## 12. Constants reference
 
 | Constant | Value | Used in |

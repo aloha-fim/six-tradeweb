@@ -53,10 +53,10 @@ async def test_feedback_now_three_live(client):
     await client.post("/flywheel/simulate")
     sig = (await client.get("/feedback/tradeweb")).json()["signals"]
     assert sig["evaluation_freshness"]["status"] == "live"
-    assert sig["model_review_candidates"]["status"] == "live"
-    assert sig["demand_momentum"]["status"] == "live"
+    assert sig["consensus_deviation"]["tier"] == "headline"
+    assert sig["reference_data_corrections"]["tier"] == "headline"
     assert sig["demand_momentum"]["total_events"] > 0
-    assert sig["validation_bias"]["status"] == "live"
+    assert sig["validation_bias"]["status"] == "derived"
     assert sig["validation_bias"]["challenges"] >= 1
     assert len(sig["validation_bias"]["corrections"]) >= 1
     # signed bias carries a direction
@@ -83,3 +83,23 @@ async def test_simulate_attributes_a_client(client):
     r = (await client.post("/flywheel/simulate")).json()
     assert r["client"]  # a SIX client is attributed
     assert (await client.get("/challenges")).json()[0]["client"] == r["client"]
+
+
+async def test_challenge_records_basis(client):
+    await client.post("/ai-price/refresh")
+    rows = (await client.get("/ai-price/latest")).json()
+    r = await client.post("/challenges", json={"cusip": rows[0]["cusip"], "client": "Private Bank",
+                                               "basis": "trade",
+                                               "challenged_price": rows[0]["ai_price"] - 0.3})
+    assert r.json()["basis"] == "trade"
+    assert (await client.get("/challenges")).json()[0]["basis"] == "trade"
+
+
+async def test_simulate_uses_consensus_basis(client):
+    await client.post("/ai-price/refresh")
+    r = (await client.post("/flywheel/simulate")).json()
+    assert r["basis"] == "consensus"
+    assert "consensus" in r and "consensus_z" in r
+    # settled price equals the cited consensus
+    assert abs(r["settled_price"] - r["consensus"]) < 1e-6
+    assert (await client.get("/challenges")).json()[0]["basis"] == "consensus"

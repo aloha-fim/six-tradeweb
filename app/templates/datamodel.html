@@ -1,0 +1,138 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ service }} · Data model</title><style>
+:root{--paper:#fafaf7;--field:#fff;--ink:#111114;--muted:#76766e;--rule:#ddddd4;--accent:#e2001a;--pos:#0f7a4f;
+--mono:ui-monospace,'SF Mono','JetBrains Mono',monospace;--sans:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.4;letter-spacing:-0.005em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.mast{border-bottom:2px solid var(--ink);padding:28px 0 14px;display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mast h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-0.02em;text-transform:uppercase}
+.mast .x{color:var(--accent);padding:0 2px}
+.mast .meta{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right}
+.mast .meta b{color:var(--ink);font-weight:500}
+.nav{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+.nav a{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:11px 0;margin-right:22px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nav a:hover{color:var(--ink)}
+.nav a.on{color:var(--ink);border-bottom-color:var(--accent)}
+section{border-bottom:1px solid var(--rule);padding:22px 0}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.eb{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+.sh h2{font-size:16px;font-weight:700;margin:0;letter-spacing:-0.01em}
+.src{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em}
+.src .tw{color:var(--accent);font-weight:600}
+h3.sub{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;font-weight:500}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:8px}
+.card{background:#f3f2ec;padding:12px 14px}
+.card .k{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)}
+.card .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;margin-top:3px}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:14px}
+.tile{background:var(--paper);padding:11px 12px}
+.tile .k{font-family:var(--mono);font-size:9.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:21px;margin-top:3px}
+.tile .v small{font-size:10px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);text-align:left;padding:0 10px 7px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+tbody td{padding:8px 10px 8px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-family:var(--mono);font-size:12px}
+.scroll{overflow-x:auto}
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:6px 12px}
+.btn:hover{background:var(--accent);border-color:var(--accent)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+.btn.xs{padding:3px 7px;font-size:10px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.controls label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+select,input[type=number]{font-family:var(--mono);font-size:12px;padding:5px 8px;border:1px solid var(--rule);background:var(--field);color:var(--ink)}
+input[type=number]{width:90px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;padding:5px 10px;border:1px solid var(--rule)}
+.chip.live{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.star{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.pend{color:var(--muted)}
+.chip.prosp{color:var(--accent);border-color:var(--accent)}
+.sig{font-family:var(--mono);font-size:12px}
+.note{font-size:13px;color:var(--muted);line-height:1.55;border-left:3px solid var(--accent);padding:10px 14px;background:#f3f2ec;margin:0 0 16px;border-radius:0}
+.note b{color:var(--ink)}
+.foot{padding:20px 0 30px;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
+.neg{color:var(--accent)}.posn{color:var(--pos)}
+
+.dm-cap{color:var(--muted);font-size:12px;line-height:1.5;margin:2px 0 12px}
+.dm-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.dm-tools textarea{flex:1;min-width:260px;height:34px;font-family:var(--mono);font-size:11px;border:1px solid var(--rule);padding:7px 9px;background:#fff;resize:vertical}
+.en-card{border:1px solid var(--rule);padding:12px 14px;margin-bottom:12px}
+.en-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:7px;margin-bottom:9px}
+.en-head .id{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.add-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px}
+.add{border-left:2px solid var(--accent);padding:2px 0 2px 9px}
+.add .k{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+.add .v{font-size:12.5px;margin-top:1px}
+.spark{margin-top:4px}
+</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Data model<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="">Flywheel</a><a href="/ui/feedback" class="">Model quality</a><a href="/ui/identity" class="">Identity</a><a href="/ui/evidence" class="">Evidence</a><a href="/ui/data-model" class="on">Data model</a></nav>
+<section>
+  <div class="sh"><span class="eb">Ingest &#183; SIX three-layer store</span><h2>Tradeweb Ai-Price &#8594; SIX</h2><span class="src">/ingest/*</span></div>
+  <p class="dm-cap">One validated feed record is split into three layers and enriched with the eight things SIX adds on top of the raw evaluated price. Seed the sample, or paste a record to ingest.</p>
+  <div class="dm-tools">
+    <button class="btn" id="dm-seed">Seed sample feed</button>
+    <textarea id="dm-json" placeholder='Paste one Ai-Price JSON record, then Ingest'></textarea>
+    <button class="btn ghost" id="dm-ingest">Ingest</button>
+    <span id="dm-msg" style="font-family:var(--mono);font-size:11px;color:var(--muted)"></span>
+  </div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Output</span><h2>Enriched evaluated price</h2><span class="src">join + 8 SIX adds</span></div>
+  <div id="en-list"><div class="empty" style="font-family:var(--mono);font-size:12px;color:var(--muted)">Seed the sample to populate.</div></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Layer 1</span><h2>SIX security master</h2><span class="src">golden-copy reference data</span></div>
+  <div class="scroll"><table><thead><tr><th>SIX ID</th><th>CUSIP</th><th>ISIN</th><th>Issuer</th><th>Parent</th><th class="num">Cpn</th><th>Maturity</th><th>Ccy</th><th>Moody's</th><th>S&amp;P</th><th class="num">DQ</th></tr></thead><tbody id="sm-body"></tbody></table></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Layer 2</span><h2>Ai-Price valuation</h2><span class="src">the evaluated-pricing feed</span></div>
+  <div class="scroll"><table><thead><tr><th>Date</th><th>CUSIP</th><th class="num">Bid</th><th class="num">Mid</th><th class="num">Ask</th><th class="num">Yield</th><th>Curve</th><th class="num">Spd bp</th><th class="num">Conf</th><th class="num">Liq</th></tr></thead><tbody id="vl-body"></tbody></table></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Layer 3</span><h2>Explainability / model inputs</h2><span class="src">valuation governance</span></div>
+  <div class="scroll"><table><thead><tr><th>CUSIP</th><th class="num">Last trade</th><th>Last date</th><th class="num">Days</th><th class="num">Trades 30d</th><th class="num">Vol 30d</th><th class="num">Quotes</th><th>Curve node</th><th>Model</th></tr></thead><tbody id="ex-body"></tbody></table></div>
+</section>
+<script>
+const api=(m,u,b)=>fetch(u,{method:m,headers:b?{'Content-Type':'application/json'}:undefined,body:b?JSON.stringify(b):undefined}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();});
+const $=s=>document.querySelector(s);const f=(n,d=2)=>Number(n).toFixed(d);const esc=s=>String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const fmt=n=>Number(n).toLocaleString('en-US');const dash='&#8212;';
+function spark(series){
+  if(series.length<2)return '<span style="font-family:var(--mono);font-size:11px;color:var(--muted)">1 point</span>';
+  const w=120,h=24,xs=series.map(p=>p.mid),mn=Math.min(...xs),mx=Math.max(...xs),rg=(mx-mn)||1;
+  const pts=series.map((p,i)=>`${(i/(series.length-1)*w).toFixed(1)},${(h-((p.mid-mn)/rg)*h).toFixed(1)}`).join(' ');
+  return `<svg class="spark" width="${w}" height="${h}"><polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="1.5"/></svg>`;
+}
+function enCard(r){
+  const cn=r.currency_normalization,dq=r.data_quality;
+  const adds=[
+    ['SIX security ID',r.six_security_id],
+    ['Issuer hierarchy',r.issuer_hierarchy||dash],
+    ['Corporate actions',r.corporate_actions_ref||'none linked'],
+    ['Regulatory class',r.regulatory_classification],
+    ['Reference data','Moody\'s '+(r.reference_data.rating_moodys||dash)+' &#183; S&amp;P '+(r.reference_data.rating_sp||dash)],
+    ['Currency norm.',cn.native_ccy+' '+f(cn.mid_price)+' &#8594; CHF '+f(cn.mid_price_chf)],
+    ['Data quality','score '+f(dq.score,3)+(dq.stale?' &#183; <span class="neg">STALE</span>':'')],
+    ['FIGI',r.figi],
+  ];
+  return `<div class="en-card">
+    <div class="en-head"><div><b>${esc(r.issuer)}</b> <span class="id">${r.cusip} &#183; ISIN ${esc(r.isin)}</span></div><div class="id">SIX ${r.six_security_id}</div></div>
+    <div class="add-grid">${adds.map(a=>`<div class="add"><div class="k">${a[0]}</div><div class="v">${a[1]}</div></div>`).join('')}</div>
+    <div class="add" style="margin-top:9px;border-color:var(--ink)"><div class="k">Historical time series (${r.historical_time_series.length} pts)</div>${spark(r.historical_time_series)}</div>
+  </div>`;
+}
+async function loadAll(){
+  try{
+    const [sm,vl,ex,en]=await Promise.all([api('GET','/ingest/security-master'),api('GET','/ingest/valuations'),api('GET','/ingest/explainability'),api('GET','/ingest/enriched')]);
+    $('#en-list').innerHTML=en.length?en.map(enCard).join(''):'<div class="empty" style="font-family:var(--mono);font-size:12px;color:var(--muted)">Seed the sample to populate.</div>';
+    $('#sm-body').innerHTML=sm.map(m=>`<tr><td class="num">${m.six_security_id}</td><td class="num">${m.cusip}</td><td class="num">${esc(m.isin)}</td><td>${esc(m.issuer)}</td><td>${esc(m.issuer_parent)||dash}</td><td class="num">${f(m.coupon,2)}</td><td>${m.maturity_date}</td><td>${m.currency}</td><td>${esc(m.rating_moodys)||dash}</td><td>${esc(m.rating_sp)||dash}</td><td class="num">${f(m.data_quality_score,3)}</td></tr>`).join('')||'<tr><td colspan="11" class="empty">Empty.</td></tr>';
+    $('#vl-body').innerHTML=vl.map(v=>`<tr><td>${v.valuation_date}</td><td class="num">${v.cusip}</td><td class="num">${f(v.bid_price)}</td><td class="num">${f(v.mid_price)}</td><td class="num">${f(v.ask_price)}</td><td class="num">${f(v.yield_pct)}</td><td>${esc(v.benchmark_curve)}</td><td class="num">${f(v.spread_bp,0)}</td><td class="num">${f(v.confidence_score,2)}</td><td class="num">${f(v.liquidity_score,2)}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">Empty.</td></tr>';
+    $('#ex-body').innerHTML=ex.map(e=>`<tr><td class="num">${e.cusip}</td><td class="num">${e.last_trade_price!=null?f(e.last_trade_price):dash}</td><td>${e.last_trade_date||dash}</td><td class="num">${e.days_since_trade??dash}</td><td class="num">${e.trade_count_30d??dash}</td><td class="num">${e.volume_30d!=null?fmt(e.volume_30d):dash}</td><td class="num">${e.quote_count??dash}</td><td>${esc(e.curve_node)||dash}</td><td>${esc(e.model_version)||dash}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">Empty.</td></tr>';
+  }catch(e){$('#dm-msg').textContent='load error '+e.message;}
+}
+$('#dm-seed').addEventListener('click',async()=>{$('#dm-msg').textContent='seeding...';try{const d=await api('POST','/ingest/seed-sample');$('#dm-msg').textContent='ingested '+d.ingested+' records';await loadAll();}catch(e){$('#dm-msg').textContent='error '+e.message;}});
+$('#dm-ingest').addEventListener('click',async()=>{let rec;try{rec=JSON.parse($('#dm-json').value);}catch(e){$('#dm-msg').textContent='invalid JSON';return;}try{const d=await api('POST','/ingest/ai-price',rec);$('#dm-msg').textContent='ingested '+d.ingested;await loadAll();}catch(e){$('#dm-msg').textContent='rejected ('+e.message+')';}});
+loadAll();
+</script>
+<div class="foot">Synthetic data feed &#183; for demonstration &#183; not investment advice</div></div></body></html>

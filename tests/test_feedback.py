@@ -11,13 +11,17 @@ async def test_feedback_live_and_pending_split(client):
     await client.post("/ai-price/refresh")
     d = (await client.get("/feedback/tradeweb")).json()
     sig = d["signals"]
-    # four signals are computable today
-    assert sig["evaluation_freshness"]["status"] == "live"
-    assert sig["evaluation_freshness"]["headline"] is True
-    assert sig["model_review_candidates"]["status"] == "live"
-    assert sig["demand_momentum"]["status"] == "live"
-    assert sig["validation_bias"]["status"] == "live"
-    # two remain honestly pending
+    # the two real headlines are tiered as such
+    assert sig["consensus_deviation"]["tier"] == "headline"
+    assert sig["reference_data_corrections"]["tier"] == "headline"
+    # support + commercial tiers are live but not headline
+    assert sig["evaluation_freshness"]["tier"] == "support"
+    assert sig["coverage_gaps"]["tier"] == "support"
+    assert sig["demand_momentum"]["tier"] == "commercial"
+    # overlapping signals are honestly marked derived, not live
+    assert sig["model_review_candidates"]["status"] == "derived"
+    assert sig["validation_bias"]["status"] == "derived"
+    # two remain honestly pending / prospective
     assert sig["data_quality_feedback"]["available"] is False
     assert sig["consolidated_metrics"]["status"] == "prospective"
 
@@ -45,3 +49,15 @@ async def test_feedback_candidates_have_reasons(client):
     # tight thresholds flag fewer than loose ones
     tight = (await client.get("/feedback/tradeweb?min_confidence=0.0&abs_z=99")).json()
     assert tight["signals"]["model_review_candidates"]["flagged"] == 0
+
+
+async def test_feedback_declares_privacy_boundary(client):
+    await client.post("/ai-price/refresh")
+    d = (await client.get("/feedback/tradeweb")).json()
+    # the de-identification boundary is part of the contract
+    assert "boundary" in d
+    b = d["boundary"].lower()
+    assert "de-identified" in b and "per-client" in b
+    # per-client attribution must NOT appear anywhere in what crosses to Tradeweb
+    import json as _json
+    assert "cantonal bank" not in _json.dumps(d["signals"]).lower()

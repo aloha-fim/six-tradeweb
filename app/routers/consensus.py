@@ -24,7 +24,7 @@ async def consensus(
         raise HTTPException(status_code=404, detail="No Ai-Price data; refresh first")
     out = []
     for r in rows:
-        marks = contributor_marks(r.cusip, float(r.ai_price), float(r.liquidity_score), r.as_of)
+        marks = contributor_marks(r.cusip, float(r.ai_price), r.sector.value, float(r.liquidity_score), r.as_of)
         cd = consensus_deviation(r, marks, z_flag)
         rec = asdict(cd)
         rec["description"] = r.description

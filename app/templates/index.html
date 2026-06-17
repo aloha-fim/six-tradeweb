@@ -105,6 +105,8 @@
     <a href="/ui/flywheel">Flywheel</a>
     <a href="/ui/feedback">Model quality</a>
     <a href="/ui/identity">Identity</a>
+    <a href="/ui/evidence">Evidence</a>
+    <a href="/ui/data-model">Data model</a>
   </nav>
 
   <p class="rel">SIX operates its own exchange and distributes <b>Tradeweb</b> data products — notably <b>Municipal Ai-Price</b> (since 2022). This console turns those feeds into analytics SIX can monetise: tax-equivalent yield, relative value, portfolio risk, multi-source consensus, and liquidity intelligence. Inter-dealer (<b>Dealerweb</b>) inputs to the liquidity model are synthetic and prospective.</p>
@@ -436,16 +438,18 @@ async function loadFeedback(){
     $('#fb-chips').innerHTML='';$('#fb-detail').innerHTML='';$('#fb-note').innerHTML='';return;
   }
   var s=d.signals,mrc=s.model_review_candidates;
-  var fr=s.evaluation_freshness,cn=s.consensus_deviation,vb=s.validation_bias,dm=s.demand_momentum;
-  var chip=(label,live,prosp)=>`<span class="tag" style="${live?'background:var(--ink);color:var(--paper);border-color:var(--ink)':prosp?'color:var(--accent);border-color:var(--accent)':''}">${label}</span>`;
+  var fr=s.evaluation_freshness,cn=s.consensus_deviation,vb=s.validation_bias,dm=s.demand_momentum,rd=s.reference_data_corrections,cg=s.coverage_gaps;
+  var chip=(label,tier)=>{var st=tier==='fill'?'background:var(--ink);color:var(--paper);border-color:var(--ink)':tier==='prosp'?'color:var(--accent);border-color:var(--accent)':tier==='muted'?'color:var(--muted)':'';return `<span class="tag" style="${st}">${label}</span>`;};
   $('#fb-chips').innerHTML=[
-    chip('★ Freshness · '+fr.stale_count+' stale',true,false),
-    chip('★ Consensus · '+cn.off_market+' off-market',true,false),
-    chip('Model review · '+mrc.flagged+' flagged',true,false),
-    chip('Demand momentum · '+dm.total_events+' events',true,false),
-    chip('Validation bias · '+vb.challenges+' challenges',true,false),
-    chip('Data quality · '+s.data_quality_feedback.status,false,false),
-    chip('Consolidated · '+s.consolidated_metrics.status,false,true),
+    chip('★ Consensus · '+cn.off_market+' off-market','fill'),
+    chip('★ Reference data · '+rd.flagged+' fixes','fill'),
+    chip('Freshness · '+fr.stale_count+' stale','out'),
+    chip('Coverage gaps · '+cg.flagged,'out'),
+    chip('Demand · '+dm.total_events+' events','out'),
+    chip('Validation bias · derived','muted'),
+    chip('Model review · derived','muted'),
+    chip('Data quality · pending','muted'),
+    chip('Consolidated · prospective','prosp'),
   ].join('');
 
   var mini=(title,rows)=>`<div class="fb-mini"><span class="eb">${title}</span><table>`+
@@ -469,7 +473,8 @@ async function loadFeedback(){
     +mini('★ Consensus deviation · vs bank marks',cnRows)
     +mini('Validation bias · signed',vbRows)
     +mini('Demand momentum',dmRows);
-  $('#fb-note').innerHTML='The two headline signals are model-quality diagnostics SIX is uniquely placed to produce: <b>freshness</b> (did the eval track the SIX curve) and <b>consensus</b> (is it off where banks carry it). Five signals are live; two remain pending. Consensus uses synthetic contributor marks — production needs multi-source ingest. Full per-signal tables are on the <b>Model quality</b> tab.';
+  $('#fb-note').innerHTML='Two flows are genuinely <b>unique to SIX</b>: the multi-source <b>consensus</b> on non-trading bonds (here a $-ranked exception queue) and instrument-level <b>reference-data corrections</b> (no client information, no boundary). Freshness, coverage and demand are real but not unique; validation bias largely restates consensus. Honest tiers, not an inflated count — full detail on the <b>Model quality</b> tab.'
+    +(d.boundary?'<br><b>Privacy boundary:</b> '+esc(d.boundary):'');
 
   if(!mrc.candidates.length){
     $('#fb-body').innerHTML=`<tr><td colspan="5" class="empty">None flagged · ${mrc.screened} screened, thresholds |z|≥${mrc.thresholds.abs_z}, conf<${mrc.thresholds.min_confidence}.</td></tr>`;return;

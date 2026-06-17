@@ -10,19 +10,19 @@ from app.clients.tradeweb import _MUNI_UNIVERSE, _build_record
 
 def test_contributor_marks_deterministic_and_wider_when_illiquid():
     now = dt.datetime(2026, 6, 13, tzinfo=dt.timezone.utc)
-    a = contributor_marks("X", 100.0, 95.0, now)   # liquid
-    b = contributor_marks("X", 100.0, 95.0, now)   # same inputs -> identical
+    a = contributor_marks("X", 100.0, "GO", 95.0, now)   # liquid
+    b = contributor_marks("X", 100.0, "GO", 95.0, now)   # same inputs -> identical
     assert [m.price for m in a] == [m.price for m in b]
     from statistics import pstdev
-    liquid = pstdev([m.price for m in contributor_marks("Y", 100.0, 95.0, now)])
-    illiq = pstdev([m.price for m in contributor_marks("Y", 100.0, 40.0, now)])
+    liquid = pstdev([m.price for m in contributor_marks("Y", 100.0, "GO", 95.0, now)])
+    illiq = pstdev([m.price for m in contributor_marks("Y", 100.0, "GO", 40.0, now)])
     assert illiq > liquid   # banks disagree more on illiquid bonds
 
 
 def test_consensus_deviation_fields():
     now = dt.datetime(2026, 6, 13, tzinfo=dt.timezone.utc)
     rec = _build_record(_MUNI_UNIVERSE[0], now, intraday=False)
-    marks = contributor_marks(rec.cusip, rec.ai_price, rec.liquidity_score, now)
+    marks = contributor_marks(rec.cusip, rec.ai_price, getattr(rec.sector, 'value', rec.sector), rec.liquidity_score, now)
     cd = consensus_deviation(rec, marks)
     assert cd.n_contributors == 5
     assert cd.dispersion >= 0

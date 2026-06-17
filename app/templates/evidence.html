@@ -1,0 +1,137 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ service }} · Evidence</title><style>
+:root{--paper:#fafaf7;--field:#fff;--ink:#111114;--muted:#76766e;--rule:#ddddd4;--accent:#e2001a;--pos:#0f7a4f;
+--mono:ui-monospace,'SF Mono','JetBrains Mono',monospace;--sans:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.4;letter-spacing:-0.005em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.mast{border-bottom:2px solid var(--ink);padding:28px 0 14px;display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mast h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-0.02em;text-transform:uppercase}
+.mast .x{color:var(--accent);padding:0 2px}
+.mast .meta{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right}
+.mast .meta b{color:var(--ink);font-weight:500}
+.nav{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+.nav a{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:11px 0;margin-right:22px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nav a:hover{color:var(--ink)}
+.nav a.on{color:var(--ink);border-bottom-color:var(--accent)}
+section{border-bottom:1px solid var(--rule);padding:22px 0}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.eb{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+.sh h2{font-size:16px;font-weight:700;margin:0;letter-spacing:-0.01em}
+.src{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em}
+.src .tw{color:var(--accent);font-weight:600}
+h3.sub{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;font-weight:500}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:8px}
+.card{background:#f3f2ec;padding:12px 14px}
+.card .k{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)}
+.card .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;margin-top:3px}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:14px}
+.tile{background:var(--paper);padding:11px 12px}
+.tile .k{font-family:var(--mono);font-size:9.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:21px;margin-top:3px}
+.tile .v small{font-size:10px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{font-family:var(--mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);text-align:left;padding:0 10px 7px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+tbody td{padding:8px 10px 8px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-family:var(--mono);font-size:12px}
+.scroll{overflow-x:auto}
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:6px 12px}
+.btn:hover{background:var(--accent);border-color:var(--accent)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+.btn.xs{padding:3px 7px;font-size:10px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.controls label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+select,input[type=number]{font-family:var(--mono);font-size:12px;padding:5px 8px;border:1px solid var(--rule);background:var(--field);color:var(--ink)}
+input[type=number]{width:90px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;padding:5px 10px;border:1px solid var(--rule)}
+.chip.live{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.star{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.pend{color:var(--muted)}
+.chip.prosp{color:var(--accent);border-color:var(--accent)}
+.sig{font-family:var(--mono);font-size:12px}
+.note{font-size:13px;color:var(--muted);line-height:1.55;border-left:3px solid var(--accent);padding:10px 14px;background:#f3f2ec;margin:0 0 16px;border-radius:0}
+.note b{color:var(--ink)}
+.foot{padding:20px 0 30px;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
+.neg{color:var(--accent)}.posn{color:var(--pos)}
+
+.bar-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.bar-row .lab{width:90px;flex:none;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+.bar-track{flex:1;background:#f1efe8;height:26px;position:relative}
+.bar-fill{height:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-family:var(--mono);font-size:12px;color:#fff;font-variant-numeric:tabular-nums}
+.lt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.lt-card{border:1px solid var(--rule);padding:10px 12px}
+.lt-card .c{font-family:var(--mono);font-size:12px}
+.lt-card .n{font-size:11px;color:var(--muted);margin-bottom:6px}
+.lt-meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px}
+.funnel{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.fn{flex:1;min-width:150px;border:1px solid var(--ink);padding:12px 14px;position:relative}
+.fn+.fn{border-left:none}
+.fn .k{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+.fn .v{font-family:var(--mono);font-size:22px;font-variant-numeric:tabular-nums;margin-top:4px}
+.fn .u{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.lt-legend{display:flex;gap:16px;font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:10px}
+</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Evidence<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="">Flywheel</a><a href="/ui/feedback" class="">Model quality</a><a href="/ui/identity" class="">Identity</a><a href="/ui/evidence" class="on">Evidence</a><a href="/ui/data-model" class="">Data model</a></nav>
+<section>
+  <div class="sh"><span class="eb">Proof &#183; does feedback work</span><h2>Loop closure</h2><span class="src">hold-out eval &#183; /eval/loop-closure</span></div>
+  <p class="note" id="lc-note"></p>
+  <div class="cards" id="lc-cards"></div>
+  <h3 class="sub">Held-out consensus-tracking error (mean abs, bp)</h3>
+  <div id="lc-bars"></div>
+  <h3 class="sub">Held-out bonds &#183; before &#8594; after</h3>
+  <table><thead><tr><th>CUSIP</th><th>Sector</th><th class="num">Before bp</th><th class="num">After bp</th></tr></thead><tbody id="lc-body"></tbody></table>
+</section>
+<section>
+  <div class="sh"><span class="eb">Predictive</span><h2>Consensus lead-time</h2><span class="src">illustrative &#183; /eval/lead-time</span></div>
+  <p class="note">Illustrative and synthetic: the series are staged so the consensus path leads the eval path. The transferable part is the <b>method</b> &#8212; the lag of peak cross-correlation between where banks carry a bond and where Ai-Price marks it. A positive lead means client marks move first, which is the predictive signal Tradeweb would pay for.</p>
+  <div class="lt-legend"><span><span style="display:inline-block;width:14px;height:2px;background:var(--accent);vertical-align:middle"></span> consensus (leads)</span><span><span style="display:inline-block;width:14px;height:0;border-top:2px dashed var(--ink);vertical-align:middle"></span> Ai-Price (lags)</span></div>
+  <div class="lt-grid" id="lt-charts"></div>
+</section>
+<section>
+  <div class="sh"><span class="eb">Business case</span><h2>Reach, in dollars</h2><span class="src">illustrative &#183; /eval/reach</span></div>
+  <div class="funnel" id="rc-funnel"></div>
+  <p class="fb-note" id="rc-note"></p>
+</section>
+<script>
+const api=(m,u)=>fetch(u,{method:m}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();});
+const $=s=>document.querySelector(s);const f=(n,d=1)=>Number(n).toFixed(d);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const fmt=n=>Number(n).toLocaleString('en-US');
+
+async function loadLoop(){
+  let d;try{d=await api('GET','/eval/loop-closure');}catch(e){$('#lc-note').textContent='Ingest Ai-Price first.';return;}
+  const bias=Object.entries(d.learned_sector_bias_price).map(([s,v])=>`Muni ${s} +${f(v,3)}`).join(' &#183; ');
+  $('#lc-note').innerHTML=`<b>Hold-out test.</b> ${esc(d.method)}. SIX feeds back the learned systematic sector bias (${bias} price pts); applying it to ${d.holdout_n} bonds the model never saw corrected lowers their consensus-tracking error.`;
+  $('#lc-cards').innerHTML=[
+    ['Improvement',`${d.improvement_pct>=0?'+':''}${f(d.improvement_pct,0)}%`],
+    ['MAE before',`${f(d.before.mae_bp)} bp`],['MAE after',`${f(d.after.mae_bp)} bp`],
+    ['Train / hold-out',`${d.train_n} / ${d.holdout_n}`]
+  ].map(x=>`<div class="card"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
+  const mx=Math.max(d.before.mae_bp,d.after.mae_bp)||1;
+  const bar=(lab,v,col)=>`<div class="bar-row"><div class="lab">${lab}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,100*v/mx)}%;background:${col}">${f(v)} bp</div></div></div>`;
+  $('#lc-bars').innerHTML=bar('Before',d.before.mae_bp,'#76766e')+bar('After',d.after.mae_bp,'#0f7a4f');
+  $('#lc-body').innerHTML=d.holdout.map(h=>`<tr><td class="num">${h.cusip}</td><td>${h.sector}</td><td class="num">${h.before_bp>=0?'+':''}${f(h.before_bp)}</td><td class="num">${h.after_bp>=0?'+':''}${f(h.after_bp)}</td></tr>`).join('');
+}
+function spark2(cons,ai){
+  const w=240,h=66,pad=6,n=cons.length,all=cons.concat(ai),mn=Math.min(...all),mx=Math.max(...all),rg=(mx-mn)||1;
+  const X=i=>pad+i/(n-1)*(w-2*pad),Y=v=>h-pad-((v-mn)/rg)*(h-2*pad);
+  const pts=s=>s.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  return `<svg width="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="display:block" aria-hidden="true"><polyline points="${pts(cons)}" fill="none" stroke="var(--accent)" stroke-width="2"/><polyline points="${pts(ai)}" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 2"/></svg>`;
+}
+async function loadLead(){
+  let d;try{d=await api('GET','/eval/lead-time?lead=2');}catch(e){return;}
+  $('#lt-charts').innerHTML=d.series.map(s=>`<div class="lt-card"><div class="c">${s.cusip}</div><div class="n">${esc(s.description)}</div>${spark2(s.consensus,s.ai_price)}<div class="lt-meta"><span>lead ${s.lead_days}d</span><span>corr ${f(s.corr,2)}</span></div></div>`).join('');
+}
+async function loadReach(){
+  let d;try{d=await api('GET','/eval/reach');}catch(e){return;}
+  $('#rc-funnel').innerHTML=d.funnel.map((x,i)=>{
+    const tw=x.owner==='Tradeweb';
+    return `<div class="fn" style="${tw?'border-color:var(--accent)':''}"><div class="k">${i+1} &#183; ${esc(x.stage)} <span style="color:${tw?'var(--accent)':'var(--muted)'}">[${x.owner}]</span></div><div class="v" style="${tw?'color:var(--accent)':''}">${fmt(x.value)}</div><div class="u">${x.unit}</div></div>`;
+  }).join('');
+  const a=d.assumptions;
+  $('#rc-note').innerHTML=`<b>Illustrative &#183; redistribution economics.</b> Stages 1&#8211;4 are <b>SIX's</b> numbers &#8212; Tradeweb cannot see the client roster, AUM or holdings, so it cannot compute them and the ~$${f(d.downstream_data_value_musd)}mm/yr downstream value is SIX's to monetise. Under the licensing arrangement Tradeweb books a <b>contracted share</b> (here ${Math.round(a.tradeweb_contracted_share*100)}%) &#8594; ~$${f(d.tradeweb_contracted_revenue_musd)}mm/yr. The prize exists <i>because</i> SIX owns the relationships; if the data could flow direct, SIX wouldn't be needed. Every input is a placeholder, not a forecast.`;
+}
+loadLoop();loadLead();loadReach();
+</script>
+<div class="foot">Synthetic data feed &#183; for demonstration &#183; not investment advice</div></div></body></html>
