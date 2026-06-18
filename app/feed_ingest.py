@@ -130,6 +130,7 @@ async def ingest_record(rec: AiPriceFeedRecord, session: AsyncSession) -> str:
     )
     if master is None:
         session.add(SecurityMaster(six_security_id=sid, **fields))
+        await session.flush()   # persist the parent BEFORE the child references it
     else:
         for k, v in fields.items():
             setattr(master, k, v)

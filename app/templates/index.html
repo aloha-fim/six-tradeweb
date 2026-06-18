@@ -96,7 +96,7 @@
 <body>
 <div class="wrap">
   <header class="mast">
-    <h1>SIX <span class="x">×</span> Tradeweb</h1>
+    <h1>SIX <span class="x">×</span> Client Analytics</h1>
     <div class="meta">Data &amp; analytics service<br><b id="clock">—</b></div>
   </header>
 
@@ -113,7 +113,7 @@
 
   <!-- Ai-Price + muni analytics -->
   <section id="sec-aiprice">
-    <div class="sh"><span class="eb">Municipal · Ai-Price</span><h2>Evaluated pricing &amp; relative value</h2><span class="src">source · <span class="tw">Tradeweb</span> · <span id="model-ver">—</span></span></div>
+    <div class="sh"><span class="eb">Municipal · Ai-Price</span><h2>Evaluated pricing &amp; relative value (from Tradeweb Ai-Price Market Data Product)</h2><span class="src">source · <span class="tw">Tradeweb</span> · <span id="model-ver">—</span></span></div>
     <div class="controls">
       <button class="btn" id="btn-ai">Ingest snapshot</button>
       <button class="btn ghost" id="btn-ai-intra">Intraday</button>
@@ -139,7 +139,7 @@
 
   <!-- Liquidity intelligence / GPS -->
   <section id="sec-gps">
-    <div class="sh"><span class="eb">Liquidity intelligence</span><h2>Liquidity GPS<span class="prosp" style="color:#76766e;border-color:#ddddd4">Model B · proxy</span></h2><span class="src">signals · z-score · drift</span></div>
+    <div class="sh"><span class="eb">Liquidity intelligence</span><h2>SIX Liquidity GPS<span class="prosp" style="color:#76766e;border-color:#ddddd4">Model B · proxy</span></h2><span class="src">signals · z-score · drift</span></div>
     <div class="controls"><button class="btn" id="btn-gps">Refresh signals</button><span id="gps-note" class="eb" style="margin-left:4px"></span></div>
     <div id="gps-meterwrap" style="margin-bottom:16px"></div>
     <div class="scroll">
@@ -153,7 +153,7 @@
 
   <!-- Portfolio risk -->
   <section id="sec-pf">
-    <div class="sh"><span class="eb">Portfolio</span><h2>Valuation &amp; risk</h2><span class="src">marks · <span class="tw">Ai-Price</span></span></div>
+    <div class="sh"><span class="eb">Portfolio</span><h2>SIX Valuation &amp; risk</h2><span class="src">marks · <span class="tw">Ai-Price</span></span></div>
     <div class="controls"><label>Portfolio</label><select id="pf-select"></select></div>
     <div class="pcard" id="pf-card"></div>
     <div id="pf-weights"></div>
@@ -162,7 +162,7 @@
 
   <!-- Consensus deviation -->
   <section id="sec-consensus">
-    <div class="sh"><span class="eb">Multi-source</span><h2>Consensus deviation</h2><span class="src">Ai-Price vs <span class="tw">bank-client marks</span></span></div>
+    <div class="sh"><span class="eb">Multi-source</span><h2>SIX Consensus deviation (new data feature proposal)</h2><span class="src">Ai-Price vs <span class="tw">bank-client marks</span></span></div>
     <div class="tiles" id="cn-tiles" style="grid-template-columns:repeat(4,1fr)"></div>
     <div class="cn-legend" id="cn-legend"></div>
     <div id="cn-plot"><div class="empty" style="font-family:var(--mono);font-size:12px;color:var(--muted)">Ingest Ai-Price to compute consensus.</div></div>
@@ -172,7 +172,7 @@
 
   <!-- SIX enriched bundle -->
   <section id="sec-bundle">
-    <div class="sh"><span class="eb">SIX product</span><h2>Enriched bundle</h2><span class="src">Tradeweb price + <span class="tw">SIX</span> rates · reference · corp-actions</span></div>
+    <div class="sh"><span class="eb">SIX product</span><h2>SIX Enriched bundle (new data analytics proposal)</h2><span class="src">Tradeweb price + <span class="tw">SIX</span> rates · reference · corp-actions</span></div>
     <div class="controls"><button class="btn" id="btn-bundle">Assemble bundle</button><span id="bundle-bench" class="eb"></span></div>
     <div class="scroll">
     <table>
@@ -185,14 +185,14 @@
 
   <!-- Closed-loop flywheel -->
   <section id="sec-flywheel">
-    <div class="sh"><span class="eb">Closed loop</span><h2>Flywheel</h2><span class="src">model · <span id="fw-ver" class="tw">—</span></span></div>
+    <div class="sh"><span class="eb">Closed loop</span><h2>Flywheel (SIX x Tradeweb)</h2><span class="src">model · <span id="fw-ver" class="tw">—</span></span></div>
     <div class="controls"><button class="btn" id="btn-fw">Turn the flywheel</button><span id="fw-last" class="eb"></span></div>
     <div id="fw-stages" class="tiles" style="grid-template-columns:repeat(5,1fr)"></div>
   </section>
 
   <!-- Feedback back to Tradeweb -->
   <section id="sec-feedback">
-    <div class="sh"><span class="eb">SIX → Tradeweb</span><h2>Model-quality feedback</h2><span class="src">computed by <span class="tw">SIX</span></span></div>
+    <div class="sh"><span class="eb">SIX → Tradeweb</span><h2>Model-quality feedback (SIX to Tradeweb flywheel)</h2><span class="src">computed by <span class="tw">SIX</span></span></div>
     <div id="fb-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
     <div id="fb-detail" class="fb-grid"></div>
     <h3 class="sub" style="font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:4px 0 8px;font-weight:500">Model-review candidates</h3>

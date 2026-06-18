@@ -18,10 +18,20 @@ os.environ["ENVIRONMENT"] = "test"
 
 import pytest_asyncio  # noqa: E402
 from httpx import ASGITransport, AsyncClient  # noqa: E402
+from sqlalchemy import event  # noqa: E402
 
 from app.db import Base, engine  # noqa: E402
 from app.main import app  # noqa: E402
 from app.seed import seed  # noqa: E402
+
+
+# SQLite ignores foreign keys unless asked; turn them on so the test DB enforces
+# referential integrity the way Postgres does (catches parent-before-child bugs).
+@event.listens_for(engine.sync_engine, "connect")
+def _enable_sqlite_fk(dbapi_conn, _record):
+    cur = dbapi_conn.cursor()
+    cur.execute("PRAGMA foreign_keys=ON")
+    cur.close()
 
 
 @pytest_asyncio.fixture

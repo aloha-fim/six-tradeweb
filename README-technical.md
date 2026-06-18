@@ -70,7 +70,7 @@ docker-compose.yml     local Postgres 16
 ## Run it (Postgres)
 
 ```bash
-python -m venv .venv && source .venv\Scripts\activate
+python -m venv .venv && .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env                 # TRADEWEB_USE_MOCK=true by default
 
