@@ -27,6 +27,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    JSON,
     Numeric,
     String,
     func,
@@ -315,3 +316,111 @@ class ExplainabilityInput(Base):
     benchmark_spread: Mapped[float | None] = mapped_column(Numeric(8, 2), nullable=True)
     curve_node: Mapped[str | None] = mapped_column(String(12), nullable=True)
     model_version: Mapped[str | None] = mapped_column(String(40), nullable=True)
+
+
+
+
+class ContributorReliability(Base):
+    """Persisted per-contributor reliability, recalibrated against executed trades.
+
+    Held in the DB (not memory) so a recalibration survives restarts and actually
+    feeds forward into the next consensus.
+    """
+
+    __tablename__ = "contributor_reliability"
+
+    name: Mapped[str] = mapped_column(String(40), primary_key=True)
+    reliability: Mapped[float] = mapped_column(Numeric(4, 3), default=0.85)
+    n_obs: Mapped[int] = mapped_column(Integer, default=0)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class RecalibrationAudit(Base):
+    """Audit trail: every executed-trade recalibration that moved the model.
+
+    Records who influenced the price (per-contributor before/after) under which
+    model version, so any reliability state can be reconstructed and explained.
+    """
+
+    __tablename__ = "recalibration_audit"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    ts: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    cusip: Mapped[str] = mapped_column(String(12), index=True)
+    executed_trade: Mapped[float] = mapped_column(Numeric(12, 4))
+    model_version: Mapped[str] = mapped_column(String(40))
+    detail: Mapped[dict] = mapped_column(JSON)
+
+
+class PriceLineage(Base):
+    """Immutable, replayable record of one consensus computation.
+
+    Stores every input (marks, reliabilities, ages, outliers, group prior,
+    liquidity), the feature snapshot, the model version, and the output. Append-
+    only: a price can be explained and re-derived bit-for-bit from this row.
+    """
+
+    __tablename__ = "price_lineage"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    ts: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    cusip: Mapped[str] = mapped_column(String(12), index=True)
+    as_of: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+    model_version: Mapped[str] = mapped_column(String(40))
+    ai_price: Mapped[float] = mapped_column(Numeric(12, 4))
+    consensus: Mapped[float] = mapped_column(Numeric(12, 4))
+    posterior_price: Mapped[float] = mapped_column(Numeric(12, 4))
+    ci_low: Mapped[float] = mapped_column(Numeric(12, 4))
+    ci_high: Mapped[float] = mapped_column(Numeric(12, 4))
+    confidence_pct: Mapped[int] = mapped_column(Integer)
+    features: Mapped[dict] = mapped_column(JSON)   # the snapshot used to price
+    inputs: Mapped[dict] = mapped_column(JSON)     # marks, outliers, group prior, liquidity
+
+
+class BondFeatureSnapshot(Base):
+    """Offline feature store: an immutable, point-in-time feature row.
+
+    One row per (cusip, as_of, feature_set_version). Append-only, so backtests are
+    reproducible and you can time-travel ("what did we know at time T"). No online
+    layer (Redis/Dynamo) by design -- everything is Postgres.
+    """
+
+    __tablename__ = "bond_feature_snapshot"
+    __table_args__ = (
+        Index("uq_feature_snapshot", "cusip", "as_of", "feature_set_version", unique=True),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    cusip: Mapped[str] = mapped_column(String(9), index=True)
+    as_of: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), index=True)
+    feature_set_version: Mapped[str] = mapped_column(String(40), index=True)
+    sector: Mapped[str] = mapped_column(String(40))
+    rating_score: Mapped[float] = mapped_column(Numeric(4, 3))
+    duration: Mapped[float] = mapped_column(Float)
+    convexity: Mapped[float] = mapped_column(Float)
+    liquidity_score: Mapped[float] = mapped_column(Float)
+    benchmark_spread_bp: Mapped[float] = mapped_column(Float)
+    trade_count_30d: Mapped[int] = mapped_column(Integer)
+    volatility_30d: Mapped[float] = mapped_column(Float)
+    ai_price: Mapped[float] = mapped_column(Numeric(12, 4))
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class BacktestResult(Base):
+    """Stored backtest comparisons: model prediction vs the realized trade."""
+
+    __tablename__ = "backtest_result"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    run_id: Mapped[str] = mapped_column(String(36), index=True)
+    cusip: Mapped[str] = mapped_column(String(9), index=True)
+    as_of: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+    sector: Mapped[str] = mapped_column(String(40))
+    predicted_price: Mapped[float] = mapped_column(Numeric(12, 4))
+    baseline_ai_price: Mapped[float] = mapped_column(Numeric(12, 4))
+    actual_price: Mapped[float] = mapped_column(Numeric(12, 4))
+    error_bp: Mapped[float] = mapped_column(Float)
+    abs_error_bp: Mapped[float] = mapped_column(Float)
+    baseline_abs_error_bp: Mapped[float] = mapped_column(Float)
+    model_version: Mapped[str] = mapped_column(String(40))
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

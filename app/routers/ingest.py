@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import datetime as dt
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,6 +14,7 @@ from ..feed_ingest import (
     ingest_record,
     six_security_id,
 )
+from ..feed_validation import validate_feed_record
 from ..models import AiPriceValuation, ExplainabilityInput, SecurityMaster
 
 router = APIRouter(tags=["Ingest"])
@@ -55,9 +56,24 @@ async def ingest_ai_price(
     session: AsyncSession = Depends(get_session),
 ) -> dict:
     recs = records if isinstance(records, list) else [records]
+    warnings: list[dict] = []
+    for r in recs:
+        report = validate_feed_record(r)
+        if report["violations"]:
+            raise HTTPException(status_code=422,
+                                detail={"cusip": r.cusip, "violations": report["violations"]})
+        dup = await session.scalar(select(AiPriceValuation.id).where(
+            AiPriceValuation.cusip == r.cusip,
+            AiPriceValuation.valuation_date == r.valuation_date,
+            AiPriceValuation.source == r.source))
+        if dup is not None:
+            raise HTTPException(status_code=409,
+                                detail=f"duplicate valuation for {r.cusip} on {r.valuation_date}")
+        if report["warnings"]:
+            warnings.append({"cusip": r.cusip, "warnings": report["warnings"]})
     ids = [await ingest_record(r, session) for r in recs]
     enriched = [await enriched_record(sid, session) for sid in dict.fromkeys(ids)]
-    return {"ingested": len(recs), "securities": enriched}
+    return {"ingested": len(recs), "warnings": warnings, "securities": enriched}
 
 
 @router.post("/ingest/seed-sample")

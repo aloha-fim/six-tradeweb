@@ -55,7 +55,7 @@ input[type=number]{width:90px}
 .note b{color:var(--ink)}
 .foot{padding:20px 0 30px;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
 .neg{color:var(--accent)}.posn{color:var(--pos)}
-</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Identity<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="">Flywheel</a><a href="/ui/feedback" class="">Model quality</a><a href="/ui/identity" class="on">Identity</a><a href="/ui/evidence" class="">Evidence</a><a href="/ui/data-model" class="">Data model</a></nav>
+</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Identity<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/" class="">Overview</a><a href="/ui/flywheel" class="">Flywheel</a><a href="/ui/feedback" class="">Model quality</a><a href="/ui/identity" class="on">Identity</a><a href="/ui/evidence" class="">Evidence</a><a href="/ui/data-model" class="">Data model</a><a href="/ui/network">Network</a></nav>
 <section>
   <div class="sh"><span class="eb">Reference</span><h2>Instrument identity</h2><span class="src">resolution &#183; read-only</span></div>
   <p class="note">Identity is created <b>upstream</b>: the reference universe supplies each bond's CUSIP, and the ISIN check digit and issuer LEI are derived in enrichment. The loop assumes it &#8212; every storage and feedback join keys on CUSIP. This is a read-only resolution view, not a golden-copy master-data manager (that pipeline is conceptual only).</p>

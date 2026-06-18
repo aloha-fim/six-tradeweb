@@ -6,7 +6,10 @@ from .enrichment import (
     interpolate,
     isin_from_cusip,
 )
-from .consensus import ConsensusDeviation, consensus_deviation
+from .consensus import (MODEL_VERSION, ConsensusDeviation, bayesian_posterior,
+                        consensus_deviation, effective_reliability,
+                        recalibrate_reliability, reliability_weighted, robust_filter,
+                        stacked_outlier_filter)
 from .freshness import Freshness, assess_freshness, daily_move_bp, responsiveness
 from .liquidity import (
     SectorGPS,
@@ -34,5 +37,7 @@ __all__ = [
     "EnrichedBond", "EnrichedMuni", "enrich_bond", "enrich_muni",
     "interpolate", "isin_from_cusip",
     "Freshness", "assess_freshness", "daily_move_bp", "responsiveness",
-    "ConsensusDeviation", "consensus_deviation",
+    "ConsensusDeviation", "consensus_deviation", "robust_filter",
+    "bayesian_posterior", "recalibrate_reliability", "stacked_outlier_filter",
+    "effective_reliability", "reliability_weighted", "MODEL_VERSION",
 ]

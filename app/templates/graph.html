@@ -1,0 +1,136 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ service }} · Liquidity graph</title><style>
+:root{--paper:#fafaf7;--field:#fff;--ink:#111114;--muted:#76766e;--rule:#ddddd4;--accent:#e2001a;--pos:#0f7a4f;--amber:#b07a00;
+--mono:ui-monospace,'SF Mono','JetBrains Mono',monospace;--sans:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.4;letter-spacing:-0.005em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.mast{border-bottom:2px solid var(--ink);padding:28px 0 14px;display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mast h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-0.02em;text-transform:uppercase}
+.mast .x{color:var(--accent);padding:0 2px}
+.mast .meta{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right}
+.mast .meta b{color:var(--ink);font-weight:500}
+.nav{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--rule)}
+.nav a{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:11px 0;margin-right:22px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nav a:hover{color:var(--ink)}
+.nav a.on{color:var(--ink);border-bottom-color:var(--accent)}
+section{border-bottom:1px solid var(--rule);padding:22px 0}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.eb{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted)}
+.sh h2{font-size:16px;font-weight:700;margin:0;letter-spacing:-0.01em}
+.src{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.04em}
+.note{font-size:13px;color:var(--muted);line-height:1.55;border-left:3px solid var(--accent);padding:10px 14px;background:#f3f2ec;margin:0 0 14px}
+.note b{color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;align-items:center;font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.layout{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
+@media(max-width:860px){.layout{grid-template-columns:1fr}}
+.canvas{border:1px solid var(--rule);background:var(--field)}
+.node{cursor:pointer}
+.lbl{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+.panel{border:1px solid var(--rule);background:#f3f2ec;padding:14px 16px;min-height:220px}
+.panel .hint{font-size:13px;color:var(--muted);line-height:1.5}
+.panel .cz{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:10px}
+.panel .cz .c{font-family:var(--mono);font-size:14px;font-weight:600}
+.panel .cz .m{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.04em}
+.pcards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.pcard{background:var(--field);border:1px solid var(--rule);padding:8px 10px}
+.pcard .k{font-family:var(--mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)}
+.pcard .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:20px;margin-top:2px}
+.anc{font-family:var(--mono);font-size:12px;background:var(--field);border:1px solid var(--rule);padding:9px 11px;margin-bottom:8px}
+.anc .row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.anc .lab{font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.exp{font-size:12px;color:var(--muted);line-height:1.5}
+.neg{color:var(--accent)}.posn{color:var(--pos)}
+.btn{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:6px 12px}
+.btn:hover{background:var(--accent);border-color:var(--accent)}
+.foot{padding:20px 0 30px;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
+</style></head><body><div class="wrap"><header class="mast"><h1>SIX <span class="x">&#215;</span> Tradeweb</h1><div class="meta">Liquidity graph<br><b>{{ service }}</b></div></header><nav class="nav"><a href="/">Overview</a><a href="/ui/flywheel">Flywheel</a><a href="/ui/feedback">Model quality</a><a href="/ui/identity">Identity</a><a href="/ui/evidence">Evidence</a><a href="/ui/data-model">Data model</a><a href="/ui/network" class="on">Network</a></nav>
+<section>
+  <div class="sh"><span class="eb">Issuer-sector network &#183; propagation</span><h2>Liquidity graph</h2><span class="src">/graph/liquidity</span></div>
+  <p class="note">Each bond links to its <b>state, sector, rating and maturity</b> (edge pull 0.50 / 0.20 / 0.15 / 0.15). A thinly-covered bond borrows strength from connected, better-covered bonds: its <b>network liquidity</b> blends its own with its neighbours', and its <b>borrowed price anchor</b> re-prices it at the neighbours' liquidity-weighted spread to the fitted curve. Click a node to inspect it.</p>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--pos)"></span>high liquidity</span>
+    <span><span class="dot" style="background:var(--amber)"></span>medium</span>
+    <span><span class="dot" style="background:var(--accent)"></span>low</span>
+    <span style="margin-left:auto">edge thickness = shared state / sector / rating / maturity</span>
+  </div>
+  <div class="layout">
+    <div>
+      <svg id="svg" class="canvas" width="100%" viewBox="0 0 900 460" role="img" aria-label="Municipal bond liquidity network">
+        <g id="edges"></g><g id="nodes"></g>
+      </svg>
+    </div>
+    <div class="panel" id="panel"><div class="hint">Select a bond to see its network liquidity and the price anchor borrowed from its neighbours.</div></div>
+  </div>
+  <div id="msg" style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:10px"></div>
+</section>
+<div class="foot">SIX &#215; Tradeweb &#183; liquidity graph &#183; live from /graph/liquidity</div></div>
+<script>
+const W=900,H=460,cx=W/2,cy=H/2;
+function col(net){return net>=78?'var(--pos)':net>=64?'var(--amber)':'var(--accent)';}
+function rad(net){return 8+(net-58)/34*13;}
+function fmt(x,d){return (x>=0?'':'')+x.toFixed(d);}
+
+async function load(){
+  let r;
+  try{ r=await fetch('/graph/liquidity'); }catch(e){ document.getElementById('msg').textContent='network error'; return; }
+  if(r.status===404){
+    document.getElementById('panel').innerHTML='<div class="hint">No Ai-Price data yet. <button class="btn" id="rf">Refresh Ai-Price</button></div>';
+    document.getElementById('rf').onclick=async()=>{await fetch('/ai-price/refresh',{method:'POST'}); location.reload();};
+    return;
+  }
+  const data=await r.json();
+  const B=data.bonds;
+  document.getElementById('msg').textContent=data.counts.bonds+' bonds \u00b7 '+data.counts.nodes+' nodes \u00b7 '+data.counts.edges+' edges';
+  render(B);
+}
+
+function render(B){
+  const idx={}; B.forEach((b,i)=>idx[b.cusip]=i);
+  const N=B.length;
+  const em={};
+  B.forEach(b=>(b.neighbors||[]).forEach(n=>{ if(idx[n.cusip]===undefined)return; const a=Math.min(idx[b.cusip],idx[n.cusip]),c=Math.max(idx[b.cusip],idx[n.cusip]); const k=a+'-'+c; em[k]=Math.max(em[k]||0,n.weight);}));
+  const E=Object.keys(em).map(k=>{const[a,c]=k.split('-').map(Number);return{a,c,w:em[k]};});
+  const P=B.map((b,i)=>({x:cx+200*Math.cos(2*Math.PI*i/N),y:cy+170*Math.sin(2*Math.PI*i/N),vx:0,vy:0}));
+  for(let it=0;it<460;it++){
+    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){let dx=P[i].x-P[j].x,dy=P[i].y-P[j].y,d2=dx*dx+dy*dy||0.01,d=Math.sqrt(d2),f=4200/d2;P[i].vx+=f*dx/d;P[i].vy+=f*dy/d;P[j].vx-=f*dx/d;P[j].vy-=f*dy/d;}
+    E.forEach(e=>{let dx=P[e.c].x-P[e.a].x,dy=P[e.c].y-P[e.a].y,d=Math.sqrt(dx*dx+dy*dy)||0.01,L=150-90*e.w,f=(d-L)*0.02*(0.4+e.w);P[e.a].vx+=f*dx/d;P[e.a].vy+=f*dy/d;P[e.c].vx-=f*dx/d;P[e.c].vy-=f*dy/d;});
+    for(let i=0;i<N;i++){P[i].vx+=(cx-P[i].x)*0.011;P[i].vy+=(cy-P[i].y)*0.011;P[i].x+=P[i].vx*0.5;P[i].y+=P[i].vy*0.5;P[i].vx*=0.82;P[i].vy*=0.82;}
+  }
+  let mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;
+  P.forEach(p=>{mnx=Math.min(mnx,p.x);mxx=Math.max(mxx,p.x);mny=Math.min(mny,p.y);mxy=Math.max(mxy,p.y);});
+  const pad=54,s=Math.min((W-2*pad)/(mxx-mnx||1),(H-2*pad)/(mxy-mny||1));
+  P.forEach(p=>{p.x=pad+(p.x-mnx)*s;p.y=pad+(p.y-mny)*s;});
+
+  const NS='http://www.w3.org/2000/svg';
+  const gE=document.getElementById('edges'),gN=document.getElementById('nodes');
+  gE.innerHTML='';gN.innerHTML='';
+  const eEls=E.map(e=>{const l=document.createElementNS(NS,'line');l.setAttribute('x1',P[e.a].x);l.setAttribute('y1',P[e.a].y);l.setAttribute('x2',P[e.c].x);l.setAttribute('y2',P[e.c].y);l.setAttribute('stroke','#c7c7bd');l.setAttribute('stroke-width',(0.5+e.w*3.2).toFixed(2));l.setAttribute('opacity',(0.2+e.w*0.4).toFixed(2));gE.appendChild(l);return l;});
+  const nEls=B.map((b,i)=>{const g=document.createElementNS(NS,'g');g.setAttribute('class','node');const c=document.createElementNS(NS,'circle');c.setAttribute('cx',P[i].x);c.setAttribute('cy',P[i].y);c.setAttribute('r',rad(b.network_liquidity).toFixed(1));c.setAttribute('fill',col(b.network_liquidity));c.setAttribute('stroke','#fff');c.setAttribute('stroke-width','1.5');const t=document.createElementNS(NS,'text');t.setAttribute('class','lbl');t.setAttribute('x',P[i].x);t.setAttribute('y',P[i].y+rad(b.network_liquidity)+12);t.setAttribute('text-anchor','middle');t.textContent=b.state+' '+b.sector[0];g.appendChild(c);g.appendChild(t);g.onclick=()=>pick(i);gN.appendChild(g);return{c};});
+
+  function pick(i){
+    const b=B[i];const nb=new Set((b.neighbors||[]).map(n=>idx[n.cusip]).filter(x=>x!==undefined));nb.add(i);
+    eEls.forEach((l,k)=>{const e=E[k],on=(e.a===i||e.c===i);l.setAttribute('stroke',on?'#e2001a':'#c7c7bd');l.setAttribute('opacity',on?(0.5+e.w*0.5).toFixed(2):'0.08');});
+    nEls.forEach((n,k)=>{n.c.setAttribute('opacity',nb.has(k)?'1':'0.25');n.c.setAttribute('stroke',k===i?'#111114':'#fff');n.c.setAttribute('stroke-width',k===i?'2.5':'1.5');});
+    const gap=b.borrowed_price_anchor!=null?(b.borrowed_price_anchor-b.ai_price):null;
+    const gbp=gap!=null?gap/b.ai_price*10000:null;
+    const gc=gap==null?'':(Math.abs(gap)<0.25?'':(gap>0?'posn':'neg'));
+    const sect=b.sector==='GO'?'general obligation':'revenue';
+    let anc='<div class="anc"><div class="lab">borrowed price anchor</div>';
+    if(b.borrowed_price_anchor!=null){
+      anc+='<div class="row"><span style="color:var(--muted)">Ai-Price '+b.ai_price.toFixed(2)+'</span><span>&#8594;</span><span style="font-weight:600">'+b.borrowed_price_anchor.toFixed(2)+'</span>'
+        +'<span class="'+gc+'">('+(gap>=0?'+':'')+gap.toFixed(2)+' pts &#183; '+(gbp>=0?'+':'')+gbp.toFixed(0)+' bp)</span></div>';
+    }else{anc+='<div class="row"><span style="color:var(--muted)">no connected neighbours</span></div>';}
+    anc+='</div>';
+    document.getElementById('panel').innerHTML=
+      '<div class="cz"><span class="c">'+b.cusip+'</span><span class="m">'+b.state+' \u00b7 '+sect+' \u00b7 '+b.rating+' \u00b7 '+b.maturity_bucket+'</span></div>'
+      +'<div class="pcards"><div class="pcard"><div class="k">own liquidity</div><div class="v">'+b.own_liquidity.toFixed(0)+'</div></div>'
+      +'<div class="pcard"><div class="k">network liquidity</div><div class="v">'+b.network_liquidity.toFixed(0)+'</div></div></div>'
+      +'<div class="pcards"><div class="pcard"><div class="k">neighbours</div><div class="v">'+b.neighbor_count+'</div></div>'
+      +'<div class="pcard"><div class="k">nbr spread&#8594;curve</div><div class="v">'+(b.neighbor_spread_to_curve_bp==null?'\u2013':(b.neighbor_spread_to_curve_bp>=0?'+':'')+b.neighbor_spread_to_curve_bp.toFixed(1))+'</div></div></div>'
+      +anc
+      +'<div class="exp">Re-prices the bond at the liquidity-weighted spread-to-curve of its neighbours \u2014 a sanity check for thin names. A large gap flags a name whose own mark disagrees with its peer group.</div>';
+  }
+}
+load();
+</script></body></html>

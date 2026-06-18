@@ -21,6 +21,12 @@ async def test_dashboard_served(client):
     assert "Municipal Ai-Price" in r.text and "Dealerweb" in r.text
 
 
+async def test_network_page_served(client):
+    r = await client.get("/ui/network")
+    assert r.status_code == 200
+    assert "Liquidity graph" in r.text and "/graph/liquidity" in r.text
+
+
 async def test_instruments_seeded(client):
     r = await client.get("/instruments")
     assert any(i["symbol"] == "NESN" for i in r.json())

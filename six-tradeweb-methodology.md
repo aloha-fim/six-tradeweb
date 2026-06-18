@@ -444,19 +444,46 @@ returned with a `tier` so the value is graded rather than inflated: not every
 on one question — *does this tell Tradeweb something it does not already know?*
 
 **Headline — consensus deviation (the real prize, unique to SIX).** Ai-Price vs
-the median of the marks SIX's bank clients carry for the bond:
+the blend of the marks SIX's bank clients carry for the bond. This is not a
+simple average — it is a five-stage engine (`analytics/consensus.py`):
 ```
-consensus    = median(contributor marks)
-z            = (ai_price - consensus) / dispersion(marks)
+1. MAD outlier filter        modified z-score on the median absolute deviation;
+                             drops a stale / fat-finger mark (e.g. 104.50 among 101.2x)
+2. reliability weighting     each mark weighted by how well that contributor has
+                             tracked executed trades (not an equal vote)
+3. Bayesian posterior        Ai-Price is the prior; surviving marks are the evidence;
+                             output is a precision-weighted posterior, not a mean
+4. 95% confidence interval   from the posterior std -> a confidence %, because risk
+                             desks care about uncertainty as much as the point
+5. recalibration             a printed trade nudges each contributor's reliability
+                             toward how closely it tracked the trade (EWMA)
+z            = (ai_price - consensus) / robust_dispersion(marks)
 off_market   = |z| >= 1.5
 ```
-For the ~98% of munis that do not print there is no trade to anchor to; an
+Three refinements make the posterior production-grade for *municipals* specifically,
+where most bonds are thinly covered:
+
+  * **Liquidity-aware observations.** On an illiquid bond the client marks are
+    noisier, so their variance is inflated and the posterior leans on the Ai-Price
+    prior; on a liquid bond the marks dominate. The live engine confirms this —
+    liquid GO names resolve to a tight CI (~0.07) and high confidence (~82%),
+    illiquid revenue names to a wider CI (~0.18) and lower confidence (~72%).
+  * **Hierarchical group anchor.** A thinly-covered bond borrows its sector's
+    typical mark-vs-Ai-Price gap, applied at its own price level, as an extra
+    pseudo-observation that fades as the contributor count grows — so a
+    one-contributor bond is shrunk toward the sector pattern, a five-contributor
+    bond barely. (Borrowing the sector *gap*, not an absolute cross-bond price.)
+  * **Executed-trade ground truth.** When a trade prints it enters the posterior
+    at high precision, anchoring the estimate to the one hard observation.
+
+For the ~98% of munis that do not print there is no trade to anchor to; this
 independent multi-source mark is the single most model-improving thing SIX can
 return, and Tradeweb cannot self-produce it. It is surfaced as a **dollar-ranked
 exception queue** — each name's `|deviation| × client AUM behind it` (notional
 illustrative) — so a model owner gets a prioritised work list, not just a
-z-score. Contributor marks are synthetic; production needs multi-source ingest
-under permission.
+z-score. Contributor marks and reliabilities are synthetic and reliability is
+held in memory (DB persistence is the noted next step); production needs
+multi-source ingest under permission.
 
 **Headline — reference-data corrections (unique, and no privacy cost).** SIX is a
 reference-data house; as clients consume Ai-Price it surfaces corrections about
@@ -697,6 +724,154 @@ collateral, IFRS-13 valuation) actually consume.
 The feed is synthetic and the FX, FIGI, hierarchy and corporate-action values are
 illustrative; the ingest, validation, three-layer split and enrichment are real
 and match the production shape.
+
+---
+
+## 11C. Production hardening (persistence, versioning + audit, validation)
+
+Three operational gaps closed so the engine behaves like a governed service rather
+than a prototype. (Kafka/streaming and API auth were deliberately deferred.)
+
+**Reliability persistence (`reliability.py`, `ContributorReliability`).** Contributor
+reliability now lives in the database, not process memory. `load_reliabilities`
+seeds from the baseline on first use and thereafter returns the persisted values;
+the consensus engine reads them and weights each mark accordingly. This closes the
+loop: an executed-trade recalibration is saved and *feeds forward* into the next
+consensus instead of evaporating on restart.
+
+**Model versioning + audit trail (`MODEL_VERSION`, `RecalibrationAudit`).** Every
+consensus response and recalibration is stamped with a model version
+(`consensus_engine_v2`). Each recalibration writes an audit row — timestamp, CUSIP,
+executed trade, model version, and the per-contributor before/after reliability —
+so you can answer "who influenced this price, when, and under which model," and
+reconstruct any reliability state. Exposed at `/consensus/audit`.
+
+**Deeper validation (`feed_validation.py`).** On top of Pydantic's type/bound checks,
+the public ingest path (`/ingest/ai-price`) applies business rules before a record
+is allowed to price: price coherence (bid <= mid <= ask), a sane price range,
+maturity after valuation date, no future valuation or pricing timestamps, and ISIN
+format (with a soft check-digit warning). Hard violations return 422; a
+`(cusip, valuation_date, source)` already on file returns 409 (duplicate). Stale
+marks (no trade in 90+ days) pass but are flagged as warnings.
+
+What remains intentionally open: API authentication/rate-limiting on the service's
+own endpoints, an ML residual-correction overlay (low value on synthetic marks —
+it would mostly relearn the generator), and streaming. These are noted, not hidden.
+
+### 11C.1 Lifecycle upgrades (decay, stacked outliers, lineage/replay, monitoring)
+
+A second hardening pass added four lifecycle controls (Kafka, confidence
+calibration, Redis/latency, a shadow engine and a graph model were assessed and
+deliberately deferred as premature on synthetic data):
+
+**Time-weighted decay.** Each contributor mark carries an age; its weight is
+`reliability x exp(-0.15 x age_days)`, so a stale mark counts less in both the
+robust center and the Bayesian posterior. Marks ~3 days old lose roughly a third
+of their weight. Surfaced per contributor as `eff_reliability` alongside `age_hours`.
+
+**Stacked outlier filter.** Three stages in order: (1) a rule band rejects any mark
+more than 5% from the curve-anchored Ai-Price — a gross/wrong-bond error a
+median-based filter can miss when several marks are bad together; (2) MAD, the
+bond-adaptive robust filter; (3) a sector-deviation check that catches a lone bad
+mark when MAD has too few points. Each rejection records its stage in
+`outlier_reasons`. ML-anomaly and human-override stages are intentionally out of
+scope.
+
+**Per-price lineage + replay (reproducibility).** `POST /consensus/snapshot` writes
+an immutable `price_lineage` row per bond holding every input (marks, reliabilities,
+ages, outliers, group prior, liquidity), the feature snapshot, the model version,
+and the output. `POST /consensus/lineage/{id}/replay` re-derives the price from the
+stored inputs and confirms it is identical — so "why was this price X on that date"
+is answerable and provable, the core audit/regulatory requirement.
+
+**Monitoring.** `GET /monitoring/health` consolidates data health (bonds priced,
+stale-mark %, securities mastered, average data quality), model health (mean
+absolute deviation, median confidence, off-market count, outliers removed,
+loop-closure improvement), and governance (recalibration events, lineage records,
+reliability spread) into one pollable snapshot with ok/warn statuses. Model health
+keys on whether the feedback loop improves accuracy and confidence holds — not on
+the off-market count, since deviation from Ai-Price is the product, not a fault.
+
+---
+
+## 11D. Feature store and backtesting (`features.py`, `backtest.py`)
+
+An offline feature store and a backtesting pipeline, both on the existing Postgres
+stack — no Kafka, KDB, Redis, DynamoDB or Parquet (the online/low-latency layer is
+deliberately omitted; everything is the relational store).
+
+**Feature store (offline, versioned, point-in-time).** `build_features` is the one
+canonical extractor — used by both materialization and the backtest, so live
+pricing and backtesting can't diverge (training/serving parity). Each vector is
+stamped `bond_features_v1` and written to `bond_feature_snapshot` as an immutable
+row keyed `(cusip, as_of, feature_set_version)`. `GET /features/{cusip}?as_of=T`
+time-travels — it returns the latest snapshot at or before T, answering "what did we
+know at time T." Features read only as-of-known fields (duration, convexity, rating
+score, liquidity, benchmark spread, 30-day trade count, a volatility proxy, and the
+Ai-Price prior); no realized or future trade ever enters, which is the leakage
+guard.
+
+**Backtesting.** `POST /backtest/run` builds a deterministic point-in-time history
+per bond, asks what the consensus engine would have predicted on each past date
+using only information available then, and compares to the trade that printed
+afterward — scoring the raw Ai-Price alongside as a baseline. Results land in
+`backtest_result` and the feature snapshots used populate the store, so a run also
+builds the queryable feature history. Leakage prevention is structural: the
+prediction at date d uses only the Ai-Price and marks as of d; the realized trade
+is never an input. On the synthetic history the consensus posterior reaches ~5bp
+MAE against realized trades versus ~15bp for raw Ai-Price (~65% better), with
+revenue bonds harder than GO — the systematic-bias correction the loop is for. The
+data is synthetic; the pipeline (point-in-time features, no leakage,
+predict-vs-realized, versioned metrics, by-sector and by-model-version breakdowns)
+is production-shaped and would take real history unchanged.
+
+This is what makes the system auditable and safely trainable: measure accuracy over
+time, detect drift, identify weak sectors or contributors, and compare model
+versions — all reproducibly.
+
+---
+
+## 11E. Liquidity model, curve fitting, hybrid pricing, and the liquidity graph
+
+Market-aware pricing on top of the statistical consensus, all pure-Python (no
+numpy/scipy), in `analytics/curve.py`, `analytics/liquidity_model.py`,
+`analytics/liquidity_graph.py`, and routed by `pricing_engine.py` / `graph.py`.
+
+**Composite liquidity score** (`/liquidity/score`). A blended 0-1 metric — not a
+single number — over trading activity (`0.35 * log1p(trades)/log1p(cap)`), recency
+(`0.25 * 1/(1+days_since_trade)`), bid/ask width (`0.25`, scaled to a ~50bp
+reference) and price dispersion (`0.15`, scaled to ~20bp). Bucketed HIGH > 0.75,
+MEDIUM 0.40-0.75, LOW < 0.40. The bucket selects how much the pricing stack trusts
+market data versus model.
+
+**Svensson curve** (`/curve`, `/curve/price`). A Nelson-Siegel-Svensson curve is fit
+to the universe's (maturity, yield) points: for fixed taus the four betas are an
+ordinary least-squares solve (normal equations + Gaussian elimination), and the two
+taus are grid-scanned — no numpy/scipy. Because a Svensson curve is unconstrained
+beyond its data and will diverge (the muni set spans only ~3-12 years), yields are
+**held flat outside the fitted maturity range** (flat-forward extrapolation), so the
+long end stays sane rather than running to absurd values.
+
+**Hybrid regime-switching price** (`/pricing/hybrid/{cusip}`). The final price is a
+regime-weighted blend of three sources — the consensus posterior, the curve anchor,
+and the Ai-Price prior — with weights set by the liquidity bucket: HIGH leans on the
+marks (0.75/0.15/0.10), LOW leans on the curve and prior (0.25/0.45/0.30), MEDIUM in
+between. This is the document's regime logic done as a transparent blend: liquid
+names trust the market, illiquid names trust the curve and model.
+
+**Liquidity graph** (`/graph/liquidity`, and the Network tab in the UI). An issuer/state/sector/rating/maturity
+network: each bond links to its attribute nodes, and a one-step weighted propagation
+(state 0.50, sector 0.20, rating 0.15, maturity 0.15) lets a thinly-covered bond
+borrow strength from connected, better-covered bonds. It produces a `network_liquidity`
+(own blended with neighbours') and a `borrowed_price_anchor` — the bond re-priced at
+its neighbours' average spread to the fitted curve, a maturity-neutral quantity that
+is meaningful across bonds at different price levels. This generalises the consensus
+engine's hierarchical sector anchor to a multi-relation graph, and is most useful
+exactly where direct marks are thin.
+
+The contributor marks and several inputs are synthetic; the methods (composite
+scoring, curve fitting with extrapolation control, regime blending, graph
+propagation) are real and production-shaped.
 
 ---
 
