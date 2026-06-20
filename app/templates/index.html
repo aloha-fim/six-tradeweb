@@ -345,7 +345,7 @@ async function loadConsensus(){
     ['Screened',d.screened],['Off-market',d.off_market],
     ['Contributors','5<small>banks</small>'],['Flag','|z|≥'+d.z_flag]
   ].map(t=>`<div class="tile"><div class="k">${t[0]}</div><div class="v" style="font-size:16px">${t[1]}</div></div>`).join('');
-  $('#cn-legend').innerHTML='<span class="k"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted)"></span> SIX bank mark (5)</span><span class="k"><span style="display:inline-block;width:14px;height:1px;background:var(--ink)"></span> SIX client consensus</span><span class="k"><span style="display:inline-block;width:9px;height:9px;background:var(--accent);transform:rotate(45deg)"></span> Ai-Price</span>';
+  $('#cn-legend').innerHTML='<span class="k"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted)"></span> SIX client bank mark (5)</span><span class="k"><span style="display:inline-block;width:14px;height:1px;background:var(--ink)"></span> SIX client consensus</span><span class="k"><span style="display:inline-block;width:9px;height:9px;background:var(--accent);transform:rotate(45deg)"></span> Tradeweb Ai-Price</span>';
   const SCALE=150,HALF=150,px=dp=>Math.max(-HALF,Math.min(HALF,dp*SCALE));
   $('#cn-plot').innerHTML=d.records.map(r=>{
     const dots=(r.marks||[]).map(m=>`<span class="cn-dot" style="left:calc(50% + ${px(m-r.consensus).toFixed(1)}px)"></span>`).join('');
@@ -357,7 +357,7 @@ async function loadConsensus(){
       <div class="cn-strip">${band}<span class="cn-mid"></span>${dots}<span class="cn-ai" style="left:calc(50% + ${ai.toFixed(1)}px)"></span></div>
       <div class="cn-meta">z=${r.z>=0?'+':''}${f(r.z)}${r.off_market?'<span class="cn-off">OFF-MARKET</span>':''}</div></div>`;
   }).join('')+'<div class="cn-axis"><span>&#8592; eval below consensus (cheaper)</span><span>eval above consensus (richer) &#8594;</span></div>';
-  $('#cn-note').innerHTML='Per bond: where SIX&#39;s five bank clients carry it (dots), the consensus (line), and where Ai-Price lands (&#9670;). |z|&#8805;'+d.z_flag+' vs bank dispersion flags <b>off-market</b> &#8212; an outlier vs where the book carries it. Contributor marks are synthetic; production needs multi-source ingest. Full table on the <b>Model quality</b> tab.';
+  $('#cn-note').innerHTML='Per bond: where SIX&#39;s five bank clients carry it (dots), the consensus (line), and where Tradeweb Ai-Price lands (&#9670;). |z|&#8805;'+d.z_flag+' vs bank dispersion flags <b>off-market</b> &#8212; an outlier vs where the book carries it. Contributor marks are synthetic; production needs multi-source ingest. Full table on the <b>Model quality</b> tab.';
 }
 
 function sparkline(series,rising){
