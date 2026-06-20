@@ -202,6 +202,21 @@
     <div class="err" id="bundle-err" hidden></div>
   </section>
 
+  <!-- Liquidity intelligence / GPS -->
+  <section id="sec-gps">
+    <div class="sh"><span class="eb">Derived signal &#183; liquidity</span><h2>SIX Liquidity GPS<span class="prosp">Model B &#183; proxy</span></h2><span class="src">stress &#183; z-score &#183; drift</span></div>
+    <div class="controls"><button class="btn" id="btn-gps">Refresh signals</button><span id="gps-note" class="eb" style="margin-left:4px"></span></div>
+    <p class="fb-note" style="margin:0 0 12px">Inter-dealer (<b>Dealerweb</b>) inputs to this liquidity model are synthetic and prospective.</p>
+    <div id="gps-meterwrap" style="margin-bottom:16px"></div>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Sector</th><th class="num">Z</th><th class="num">Drift</th><th>Stretch</th><th>Trend</th><th>Risk</th><th>90-day bid/ask</th><th class="num">Stress</th></tr></thead>
+      <tbody id="gps-body"><tr><td colspan="8" class="empty">Refresh signals to compute the liquidity GPS.</td></tr></tbody>
+    </table>
+    </div>
+    <div class="err" id="gps-err" hidden></div>
+  </section>
+
   <!-- ===== STEP 3 · DIFFERENTIATE (the moat) ===== -->
   <div class="step" id="step-3">
     <div class="num">3</div>
@@ -331,11 +346,13 @@ async function loadAi(){
 }
 
 async function loadPortfolios(){
+  if(!$('#pf-select'))return;            // Portfolio section not on the page
   let pfs;try{pfs=await api('GET','/portfolios')}catch(e){return}
   $('#pf-select').innerHTML=pfs.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   if(pfs.length)loadPfValuation();
 }
 async function loadPfValuation(){
+  if(!$('#pf-select')||!$('#pf-card'))return;   // Portfolio section not on the page
   clrErr('#pf-err');const id=$('#pf-select').value;if(!id)return;
   try{
     const v=await api('GET',`/portfolios/${id}/valuation?marginal_rate=${rate()}`);
@@ -436,7 +453,7 @@ $('#btn-ai').addEventListener('click',()=>refreshAi(false));
 $('#btn-ai-intra').addEventListener('click',()=>refreshAi(true));
 $('#state-filter').addEventListener('change',loadAi);
 $('#tax-rate').addEventListener('change',()=>{loadAi();loadPfValuation();loadBundle();loadFeedback()});
-$('#pf-select').addEventListener('change',loadPfValuation);
+{const _pf=$('#pf-select');if(_pf)_pf.addEventListener('change',loadPfValuation);}
 async function refreshBundle(){
   const b=$('#btn-bundle');b.disabled=true;clrErr('#bundle-err');
   try{await api('POST','/ai-price/refresh');await loadAi();await loadPfValuation();await loadGps();await loadBundle();await loadFeedback();}
