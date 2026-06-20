@@ -189,7 +189,7 @@
     <h3 style="color:#5B9DFF;">"Tradeweb Ai-Price tells you what a bond is worth. SIX CLIENT consensus tells you whether the people actually holding it agree — and on bonds that don't trade, that's the only second opinion that exists."</h3>
     <h3 style="color:#5B9DFF;"> * Genuinely unique / a moat — Tradeweb can't compute it (it doesn't see client books), and no single bank can (it only sees its own mark). Only SIX as the distributor-in-the-middle can.</h3>
 
-    <h4 style="color:#5B9DFF;">Consensus deviation vs bank marks. For each bond, how far Ai-Price sits from where the five bank holders carry it, expressed as a z-score against their dispersion. 6 of 12 screened come back off-market (the +1670 and +17.71 entries). This is the high-value signal — Tradeweb literally cannot compute it because it never sees client books. What crosses is the deviation magnitude and the off-market flag, not the marks themselves.</h4>
+    <h4 style="color:#5B9DFF;">SIX Consensus deviation to Tradeweb Ai-Price vs SIX client bank marks. For each bond, how far Ai-Price sits from where the five bank holders carry it, expressed as a z-score against their dispersion. 6 of 12 screened come back off-market (the +1670 and +17.71 entries). This is the high-value signal — Tradeweb literally cannot compute it because it never sees client books. What crosses is the deviation magnitude and the off-market flag, not the marks themselves.</h4>
     <div class="sh"><span class="eb">Multi-source</span><h2>SIX Consensus deviation (new data feature proposal)</h2><span class="src">Tradeweb Ai-Price vs <span class="tw">SIX bank-client marks</span></span></div>
     <div class="tiles" id="cn-tiles" style="grid-template-columns:repeat(4,1fr)"></div>
     <div class="cn-legend" id="cn-legend"></div>
@@ -345,7 +345,7 @@ async function loadConsensus(){
     ['Screened',d.screened],['Off-market',d.off_market],
     ['Contributors','5<small>banks</small>'],['Flag','|z|≥'+d.z_flag]
   ].map(t=>`<div class="tile"><div class="k">${t[0]}</div><div class="v" style="font-size:16px">${t[1]}</div></div>`).join('');
-  $('#cn-legend').innerHTML='<span class="k"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted)"></span> bank mark (5)</span><span class="k"><span style="display:inline-block;width:14px;height:1px;background:var(--ink)"></span> consensus</span><span class="k"><span style="display:inline-block;width:9px;height:9px;background:var(--accent);transform:rotate(45deg)"></span> Ai-Price</span>';
+  $('#cn-legend').innerHTML='<span class="k"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted)"></span> SIX bank mark (5)</span><span class="k"><span style="display:inline-block;width:14px;height:1px;background:var(--ink)"></span> SIX client consensus</span><span class="k"><span style="display:inline-block;width:9px;height:9px;background:var(--accent);transform:rotate(45deg)"></span> Ai-Price</span>';
   const SCALE=150,HALF=150,px=dp=>Math.max(-HALF,Math.min(HALF,dp*SCALE));
   $('#cn-plot').innerHTML=d.records.map(r=>{
     const dots=(r.marks||[]).map(m=>`<span class="cn-dot" style="left:calc(50% + ${px(m-r.consensus).toFixed(1)}px)"></span>`).join('');

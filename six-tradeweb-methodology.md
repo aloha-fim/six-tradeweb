@@ -1,5 +1,7 @@
 # SIX × Tradeweb service — calculation methodology
 
+URL until 7/20/26: https://six-tradeweb.onrender.com/
+
 This document specifies, for every number the application produces, **where the
 input comes from** and **how the calculation is made**, step by step. It is the
 companion to the codebase: each formula below corresponds to a function in
