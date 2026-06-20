@@ -1,0 +1,41 @@
+# Render.com blueprint (infrastructure-as-code) for six-tradeweb.
+#
+# Place this file at the ROOT of the Git repo you connect to Render. If your app
+# code (requirements.txt, the app/ package) lives in a SUBFOLDER of the repo,
+# uncomment `rootDir` below and set it to that subfolder.
+#
+# Deploy: Render Dashboard -> Blueprints -> New Blueprint Instance -> pick this repo.
+# Free tier note: the web service spins down after 15 min idle (cold start on the
+# next request), and a free Render Postgres expires after 30 days. One free
+# Postgres per workspace.
+
+databases:
+  - name: six-tradeweb-db
+    databaseName: six_tradeweb
+    user: six
+    plan: free
+    region: frankfurt          # closest Render region to Switzerland
+
+services:
+  - type: web
+    name: six-tradeweb
+    runtime: python
+    plan: free
+    region: frankfurt
+    # rootDir: six-tradeweb    # uncomment if app code is in a repo subfolder
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: six-tradeweb-db
+          property: connectionString   # Render hands out postgresql://; the app
+                                        # coerces it to the asyncpg driver itself
+      - key: TRADEWEB_USE_MOCK
+        value: "true"                   # serve synthetic Tradeweb data (no creds)
+      - key: BOOTSTRAP_ON_STARTUP
+        value: "true"                   # seed + refresh on first boot -> demo-ready
+      - key: PYTHON_VERSION
+        value: "3.13.1"                 # if the build can't find this, use e.g. 3.12.8
