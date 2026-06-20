@@ -113,6 +113,8 @@
 
   <!-- Ai-Price + muni analytics -->
   <section id="sec-aiprice">
+    <h1 style="color:#5B9DFF;">1a) THIS IS THE MARKET DATA THAT TRADEWEB PROVIDES TO SIX</h1>
+    <h3 style="color:#5B9DFF;">SIX ASSET MANAGER or BANK CLIENTS USE TRADEWEB'S AI-PRICE TO MARK BONDS IN THEIR PORTFOLIO NAV</h3>
     <div class="sh"><span class="eb">Municipal · Ai-Price</span><h2>Evaluated pricing &amp; relative value (from Tradeweb Ai-Price Market Data Product)</h2><span class="src">source · <span class="tw">Tradeweb</span> · <span id="model-ver">—</span></span></div>
     <div class="controls">
       <button class="btn" id="btn-ai">Ingest snapshot</button>
@@ -139,6 +141,7 @@
 
   <!-- Liquidity intelligence / GPS -->
   <section id="sec-gps">
+    <h1 style="color:#5B9DFF;">THIS IS THE TIME SERIES DRIFT AND VAR OF THE MARKET DATA</h1>
     <div class="sh"><span class="eb">Liquidity intelligence</span><h2>SIX Liquidity GPS<span class="prosp" style="color:#76766e;border-color:#ddddd4">Model B · proxy</span></h2><span class="src">signals · z-score · drift</span></div>
     <div class="controls"><button class="btn" id="btn-gps">Refresh signals</button><span id="gps-note" class="eb" style="margin-left:4px"></span></div>
     <div id="gps-meterwrap" style="margin-bottom:16px"></div>
@@ -149,6 +152,24 @@
     </table>
     </div>
     <div class="err" id="gps-err" hidden></div>
+  </section>
+
+  <!-- SIX enriched bundle -->
+  <section id="sec-bundle">
+    <h1 style="color:#5B9DFF;">2) THIS IS THE SIX DNA OF THE CLIENT PORTFOLIO</h1>
+    <h3 style="color:#5B9DFF;">Reference-data corrections. Instrument-level fixes. Things like a wrong coupon, call schedule, or identifier on the bond record. These carry zero client information by construction, so they cross cleanly with no privacy boundary at all.</h3>
+    <h3 style="color:#5B9DFF;"> * Implemented SIX proprietary golden-copies of bonds (ISIN) to reconcile Tradeweb feeds</h3>
+    <h3 style="color:#5B9DFF;"> * Implemented SIX proprietary reference data such as corporate actions that append for value-add analytics</h3>
+
+    <div class="sh"><span class="eb">SIX product</span><h2>SIX Enriched bundle (new data analytics proposal)</h2><span class="src">Tradeweb price + <span class="tw">SIX</span> rates · reference · corp-actions</span></div>
+    <div class="controls"><button class="btn" id="btn-bundle">Assemble bundle</button><span id="bundle-bench" class="eb"></span></div>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>CUSIP</th><th>ISIN <span style="text-transform:none;letter-spacing:0">(derived)</span></th><th>Description</th><th class="num">Mid</th><th class="num">Yield</th><th class="num">Risk-free</th><th class="num">TEY spd</th><th class="num">Disloc Z</th><th class="num">Drift</th><th>RV</th></tr></thead>
+      <tbody id="bundle-body"><tr><td colspan="10" class="empty">Assemble the bundle to view the enriched product.</td></tr></tbody>
+    </table>
+    </div>
+    <div class="err" id="bundle-err" hidden></div>
   </section>
 
   <!-- Portfolio risk -->
@@ -162,6 +183,11 @@
 
   <!-- Consensus deviation -->
   <section id="sec-consensus">
+    <h1 style="color:#5B9DFF;">3) THIS IS A NEW SIX PRODUCT FEATURE FOR EACH BOND PRODUCT - OTHER SIX CLIENT MARKS VS TRADEWEB AI-PRICE</h1>
+    <h3 style="color:#5B9DFF;">"Tradeweb Ai-Price tells you what a bond is worth. SIX CLIENT consensus tells you whether the people actually holding it agree — and on bonds that don't trade, that's the only second opinion that exists."</h3>
+    <h3 style="color:#5B9DFF;"> * Genuinely unique / a moat — Tradeweb can't compute it (it doesn't see client books), and no single bank can (it only sees its own mark). Only SIX as the distributor-in-the-middle can.</h3>
+
+    <h4 style="color:#5B9DFF;">Consensus deviation vs bank marks. For each bond, how far Ai-Price sits from where the five bank holders carry it, expressed as a z-score against their dispersion. 6 of 12 screened come back off-market (the +1670 and +17.71 entries). This is the high-value signal — Tradeweb literally cannot compute it because it never sees client books. What crosses is the deviation magnitude and the off-market flag, not the marks themselves.</h4>
     <div class="sh"><span class="eb">Multi-source</span><h2>SIX Consensus deviation (new data feature proposal)</h2><span class="src">Ai-Price vs <span class="tw">bank-client marks</span></span></div>
     <div class="tiles" id="cn-tiles" style="grid-template-columns:repeat(4,1fr)"></div>
     <div class="cn-legend" id="cn-legend"></div>
@@ -170,21 +196,14 @@
     <div class="err" id="cn-err" hidden></div>
   </section>
 
-  <!-- SIX enriched bundle -->
-  <section id="sec-bundle">
-    <div class="sh"><span class="eb">SIX product</span><h2>SIX Enriched bundle (new data analytics proposal)</h2><span class="src">Tradeweb price + <span class="tw">SIX</span> rates · reference · corp-actions</span></div>
-    <div class="controls"><button class="btn" id="btn-bundle">Assemble bundle</button><span id="bundle-bench" class="eb"></span></div>
-    <div class="scroll">
-    <table>
-      <thead><tr><th>CUSIP</th><th>ISIN <span style="text-transform:none;letter-spacing:0">(derived)</span></th><th>Description</th><th class="num">Mid</th><th class="num">Yield</th><th class="num">Risk-free</th><th class="num">TEY spd</th><th class="num">Disloc Z</th><th class="num">Drift</th><th>RV</th></tr></thead>
-      <tbody id="bundle-body"><tr><td colspan="10" class="empty">Assemble the bundle to view the enriched product.</td></tr></tbody>
-    </table>
-    </div>
-    <div class="err" id="bundle-err" hidden></div>
-  </section>
+
 
   <!-- Closed-loop flywheel -->
   <section id="sec-flywheel">
+    <h1 style="color:#5B9DFF;">4) SIX's NEW REVENUE PRODUCT - THIS IS THE FLYWHEEL THAT SIX SENDS BACK TO TRADEWEB TO IMPROVE THEIR MARKET DATA.</h1>
+    <h3 style="color:#5B9DFF;"> * A quality signal on the feed SIX resells — off-market flags are the raw material for the flywheel (flag → price challenge → accepted correction → Tradeweb retrains).</h3>
+    <h3 style="color:#5B9DFF;"> * No client leaks - the privacy boundary is the load-bearing claim and it's well-drawn: only sector-level bias, aggregate counts, and consensus deviation cross — never identity, never the cited basis, never the raw bank marks. </h3>
+
     <div class="sh"><span class="eb">Closed loop</span><h2>Flywheel (SIX x Tradeweb)</h2><span class="src">model · <span id="fw-ver" class="tw">—</span></span></div>
     <div class="controls"><button class="btn" id="btn-fw">Turn the flywheel</button><span id="fw-last" class="eb"></span></div>
     <div id="fw-stages" class="tiles" style="grid-template-columns:repeat(5,1fr)"></div>
@@ -192,6 +211,7 @@
 
   <!-- Feedback back to Tradeweb -->
   <section id="sec-feedback">
+    <h3 style="color:#5B9DFF;">SIX sends back, per bond and per sector, where Ai-Price disagrees with the people actually holding the paper, plus reference-data fixes, plus where demand and coverage really are — and it ranks them by uniqueness instead of inflating a single "we found N problems"</h3>
     <div class="sh"><span class="eb">SIX → Tradeweb</span><h2>Model-quality feedback (SIX to Tradeweb flywheel)</h2><span class="src">computed by <span class="tw">SIX</span></span></div>
     <div id="fb-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
     <div id="fb-detail" class="fb-grid"></div>
@@ -204,6 +224,8 @@
     </div>
     <p id="fb-note" class="fb-note"></p>
     <div class="err" id="fb-err" hidden></div>
+        <h4 style="color:#5B9DFF;">Evaluation freshness (curve-tracking β). How tightly each bond's eval tracks the underlying curve — e.g. NYC GO at β=0.41 vs a Muni GO mean of 0.69, flagging a stale-feeling eval. Coverage gaps (6 bonds Tradeweb could price but isn't). Demand (1,171 consumption events, plus momentum: GO and Revenue pulls both falling) — tells Tradeweb where attention actually is.</h4>
+    <h4 style="color:#5B9DFF;">Validation bias — signed, sector-level: Muni GO running −11.1bp cheap, Muni Revenue +7.0bp rich, across 16 resolved challenges. </h4>
   </section>
 
   <div class="foot">Synthetic data feed · for demonstration · not investment advice</div>
