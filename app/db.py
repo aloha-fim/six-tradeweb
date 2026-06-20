@@ -19,8 +19,22 @@ class Base(DeclarativeBase):
 
 _settings = get_settings()
 
+
+def _async_dsn(url: str) -> str:
+    """Guarantee the async driver. Managed Postgres (Render/Heroku/Railway/Supabase)
+    hands out 'postgresql://' (or legacy 'postgres://'); the async engine needs the
+    asyncpg driver named explicitly. Coerce here too, so the engine is correct even
+    if the value bypassed the settings validator."""
+    if "+" in url.split("://", 1)[0]:
+        return url
+    for prefix in ("postgresql://", "postgres://"):
+        if url.startswith(prefix):
+            return "postgresql+asyncpg://" + url[len(prefix):]
+    return url
+
+
 engine = create_async_engine(
-    _settings.database_url,
+    _async_dsn(_settings.database_url),
     echo=False,
     pool_pre_ping=True,
 )
