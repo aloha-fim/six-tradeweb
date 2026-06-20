@@ -385,7 +385,7 @@ async function loadConsensus(){
     ['Screened',d.screened],['Off-market',d.off_market],
     ['Contributors','5<small>banks</small>'],['Flag','|z|≥'+d.z_flag]
   ].map(t=>`<div class="tile"><div class="k">${t[0]}</div><div class="v" style="font-size:16px">${t[1]}</div></div>`).join('');
-  $('#cn-legend').innerHTML='<span class="k"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted)"></span> bank mark (5)</span><span class="k"><span style="display:inline-block;width:14px;height:1px;background:var(--ink)"></span> consensus</span><span class="k"><span style="display:inline-block;width:9px;height:9px;background:var(--accent);transform:rotate(45deg)"></span> Ai-Price</span>';
+  $('#cn-legend').innerHTML='<span class="k"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted)"></span> SIX client bank mark (5)</span><span class="k"><span style="display:inline-block;width:14px;height:1px;background:var(--ink)"></span> consensus</span><span class="k"><span style="display:inline-block;width:9px;height:9px;background:var(--accent);transform:rotate(45deg)"></span> Tradeweb Ai-Price</span>';
   const SCALE=150,HALF=150,px=dp=>Math.max(-HALF,Math.min(HALF,dp*SCALE));
   $('#cn-plot').innerHTML=d.records.map(r=>{
     const dots=(r.marks||[]).map(m=>`<span class="cn-dot" style="left:calc(50% + ${px(m-r.consensus).toFixed(1)}px)"></span>`).join('');
